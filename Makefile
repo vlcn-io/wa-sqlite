@@ -29,12 +29,36 @@ BITCODE_FILES_DIST = \
 	tmp/bc/dist/libmodule.bc \
 	tmp/bc/dist/libvfs.bc
 
+dir.crsql := ./crsql
+
+crsql-files := \
+	$(dir.crsql)/crsqlite.c\
+	$(dir.crsql)/util.c \
+	$(dir.crsql)/tableinfo.c \
+	$(dir.crsql)/triggers.c \
+	$(dir.crsql)/normalize.c \
+	$(dir.crsql)/changes-vtab.c \
+	$(dir.crsql)/changes-vtab-read.c \
+	$(dir.crsql)/changes-vtab-common.c \
+	$(dir.crsql)/changes-vtab-write.c \
+	$(dir.crsql)/ext-data.c \
+	$(dir.crsql)/get-table.c
+
+sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
+sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c
+
+$(sqlite3.extra.c): $(sqlite3.c) $(dir.crsql)/core_init.c
+	cat $(sqlite3.c) $(dir.crsql)/core_init.c > $@
+
+crsqlite-extra: $(sqlite3.extra.c)
+
 # build options
 
 EMCC ?= emcc
 
 CFLAGS_COMMON = \
 	-I'deps/$(SQLITE_AMALGAMATION)' \
+	-I$(dir.crsql) \
 	-Wno-non-literal-null-conversion
 
 CFLAGS_DEBUG = $(CFLAGS_COMMON) -g
@@ -148,7 +172,7 @@ clean-tmp:
 
 tmp/bc/debug/sqlite3.bc: deps/$(SQLITE_AMALGAMATION)
 	mkdir -p tmp/bc/debug
-	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^/sqlite3.c -c -o $@
+	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^/sqlite3-extra.c -c -o $@
 
 tmp/bc/debug/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/debug
@@ -168,7 +192,7 @@ tmp/bc/debug/libvfs.bc: src/libvfs.c
 
 tmp/bc/dist/sqlite3.bc: deps/$(SQLITE_AMALGAMATION)
 	mkdir -p tmp/bc/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^/sqlite3.c -c -o $@
+	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^/sqlite3-extra.c -c -o $@
 
 tmp/bc/dist/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/dist
@@ -217,12 +241,12 @@ clean-dist:
 .PHONY: dist
 dist: dist/wa-sqlite.mjs dist/wa-sqlite-async.mjs
 
-dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
-	mkdir -p dist
-	$(EMCC) $(EMFLAGS_DIST) \
-	  $(EMFLAGS_INTERFACES) \
-	  $(EMFLAGS_LIBRARIES) \
-	  $(BITCODE_FILES_DIST) -o $@
+# dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+# 	mkdir -p dist
+# 	$(EMCC) $(EMFLAGS_DIST) \
+# 	  $(EMFLAGS_INTERFACES) \
+# 	  $(EMFLAGS_LIBRARIES) \
+# 	  $(BITCODE_FILES_DIST) -o $@
 
 dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
@@ -230,4 +254,5 @@ dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNC
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DIST) \
-	  $(BITCODE_FILES_DIST) -o $@
+		$(CFLAGS_DIST) \
+	  $(BITCODE_FILES_DIST) $(crsql-files) -o $@
