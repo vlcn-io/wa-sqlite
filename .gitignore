@@ -14,3 +14,5 @@
 /docs
 /dist
 /tmp
+
+.DS_Store
