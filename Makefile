@@ -220,12 +220,12 @@ clean-debug:
 .PHONY: debug
 debug: debug/wa-sqlite.mjs debug/wa-sqlite-async.mjs
 
-debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
-	mkdir -p debug
-	$(EMCC) $(EMFLAGS_DEBUG) \
-	  $(EMFLAGS_INTERFACES) \
-	  $(EMFLAGS_LIBRARIES) \
-	  $(BITCODE_FILES_DEBUG) -o $@
+# debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+# 	mkdir -p debug
+# 	$(EMCC) $(EMFLAGS_DEBUG) \
+# 	  $(EMFLAGS_INTERFACES) \
+# 	  $(EMFLAGS_LIBRARIES) \
+# 	  $(BITCODE_FILES_DEBUG) -o $@
 
 debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
