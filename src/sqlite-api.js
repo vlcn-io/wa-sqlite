@@ -75,6 +75,8 @@ export function Factory(Module) {
         } else {
           return sqlite3.bind_double(stmt, i, value);
         }
+        // TODO: proper bing_int64
+      case 'bigint':
       case 'string':
         return sqlite3.bind_text(stmt, i, value);
       default:
