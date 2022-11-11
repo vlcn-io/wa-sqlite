@@ -192,7 +192,7 @@ tmp/bc/debug/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-sqlite3-extra.o: deps/$(SQLITE_AMALGAMATION) $(sqlite3.extra.c)
+sqlite3-extra.o: deps/$(SQLITE_AMALGAMATION) $(sqlite3.extra.c) $(crsql-files)
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c $(crsql-files) -c
 
