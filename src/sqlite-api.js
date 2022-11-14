@@ -88,8 +88,7 @@ export function Factory(Module) {
           // Existing binding (or NULL) will be used.
           return SQLite.SQLITE_NOTICE;
         } else {
-          console.warn('unknown binding converted to null', value);
-          return sqlite3.bind_null(stmt, i);
+          throw new Error('Unknown binding type ' + typeof value);
         }
     }
   };
