@@ -150,7 +150,7 @@ clean-deps:
 	rm -rf deps
 
 .PHONY: deps
-deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS) deps/$(EXPORTED_FUNCTIONS)
+deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS) $(EXPORTED_FUNCTIONS)
 
 deps/$(SQLITE_AMALGAMATION): cache/$(SQLITE_AMALGAMATION).zip
 	mkdir -p deps
