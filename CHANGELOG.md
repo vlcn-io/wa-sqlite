@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.8.7
+
+### Patch Changes
+
+- fix statement preparation error in cases where there are multiple concurrent db connections
+
 ## 0.8.6
 
 ### Patch Changes
