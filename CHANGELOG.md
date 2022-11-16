@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.8.6
+
+### Patch Changes
+
+- update sqlite binaries
+
 ## 0.8.5
 
 ### Patch Changes
