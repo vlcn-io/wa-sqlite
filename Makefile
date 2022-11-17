@@ -241,7 +241,7 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: dist
-dist: dist/wa-sqlite-async.mjs
+dist: deps dist/wa-sqlite-async.mjs
 
 # dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 # 	mkdir -p dist
