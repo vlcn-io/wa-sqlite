@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.8.8
+
+### Patch Changes
+
+- fixes site id not being passed during replication
+
 ## 0.8.7
 
 ### Patch Changes
