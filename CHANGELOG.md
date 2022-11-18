@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.8.9
+
+### Patch Changes
+
+- fix linking issues on linux distros
+
 ## 0.8.8
 
 ### Patch Changes
