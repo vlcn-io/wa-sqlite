@@ -77,6 +77,7 @@ export function Factory(Module) {
         }
         // TODO: proper bing_int64
       case 'bigint':
+        return sqlite3.bind_int64(stmt, i, value);
       case 'string':
         return sqlite3.bind_text(stmt, i, value);
       default:
@@ -132,6 +133,17 @@ export function Factory(Module) {
 
   sqlite3.bind_int = (function() {
     const fname = 'sqlite3_bind_int';
+    const f = Module.cwrap(fname, ...decl('nnn:n'));
+    return function(stmt, i, value) {
+      verifyStatement(stmt);
+      const result = f(stmt, i, value);
+      // trace(fname, result);
+      return check(fname, result, mapStmtToDB.get(stmt));
+    };
+  })();
+
+  sqlite3.bind_int64 = (function() {
+    const fname = 'sqlite3_bind_int64';
     const f = Module.cwrap(fname, ...decl('nnn:n'));
     return function(stmt, i, value) {
       verifyStatement(stmt);

@@ -396,6 +396,18 @@ declare interface SQLiteAPI {
    */
   bind_int(stmt: number, i: number, value: number): number;
 
+  /**
+   * Bind BigInt to prepared statement parameter
+   * 
+   * Note that binding indices begin with 1.
+   * @see https://www.sqlite.org/c3ref/bind_blob.html
+   * @param stmt prepared statement pointer
+   * @param i binding index
+   * @param value 
+   * @returns `SQLITE_OK` (throws exception on error)
+   */
+   bind_int64(stmt: number, i: number, value: BigInt): number;
+
    /**
    * Bind null to prepared statement
    * 
