@@ -6,7 +6,7 @@ import { MemoryVFS } from '../src/examples/MemoryVFS.js';
 
 import GOOG from './GOOG.js';
 
-import sinon from '../.yarn/unplugged/sinon-npm-11.1.2-5325724cb2/node_modules/sinon/pkg/sinon-esm.js';
+import * as sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 
 /**
  * @param {SQLiteAPI} sqlite3 
@@ -98,7 +98,7 @@ function shared(ready) {
     const prepared = await sqlite3.prepare_v2(db, sqlite3.str_value(str));
 
     let result;
-    const cBlob = new Int8Array([8, 6, 7, 5, 3, 0, 9]);
+    const cBlob = new Uint8Array([8, 6, 7, 5, 3, 0, 9]);
     const cDouble = Math.PI;
     const cInt = 42;
     const cNull = null;

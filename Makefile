@@ -221,12 +221,12 @@ clean-debug:
 .PHONY: debug
 debug: debug/wa-sqlite.mjs debug/wa-sqlite-async.mjs
 
-# debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
-# 	mkdir -p debug
-# 	$(EMCC) $(EMFLAGS_DEBUG) \
-# 	  $(EMFLAGS_INTERFACES) \
-# 	  $(EMFLAGS_LIBRARIES) \
-# 	  $(BITCODE_FILES_DEBUG) -o $@
+debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+	mkdir -p debug
+	$(EMCC) $(EMFLAGS_DEBUG) \
+	  $(EMFLAGS_INTERFACES) \
+	  $(EMFLAGS_LIBRARIES) \
+	  $(BITCODE_FILES_DEBUG) -o $@
 
 debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
@@ -242,14 +242,14 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: dist
-dist: deps dist/wa-sqlite-async.mjs
+dist: deps dist/wa-sqlite.mjs dist/wa-sqlite-async.mjs
 
-# dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
-# 	mkdir -p dist
-# 	$(EMCC) $(EMFLAGS_DIST) \
-# 	  $(EMFLAGS_INTERFACES) \
-# 	  $(EMFLAGS_LIBRARIES) \
-# 	  $(BITCODE_FILES_DIST) -o $@
+dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+	mkdir -p dist
+	$(EMCC) $(EMFLAGS_DIST) \
+	  $(EMFLAGS_INTERFACES) \
+	  $(EMFLAGS_LIBRARIES) \
+	  $(BITCODE_FILES_DIST) *.o -o $@
 
 dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
