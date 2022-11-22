@@ -1,6 +1,6 @@
 {
   "name": "@vlcn.io/wa-sqlite",
-  "version": "0.8.9",
+  "version": "0.9.0",
   "type": "module",
   "main": "src/sqlite-api.js",
   "types": "src/types/index.d.ts",
@@ -20,7 +20,6 @@
   ],
   "scripts": {
     "build-docs": "typedoc",
-    "prepack": "make",
     "start": "web-dev-server --node-resolve",
     "test-watch": "karma start karma.conf.cjs",
     "deep-clean": "rm -rf ./dist || true && rm tsconfig.tsbuildinfo || true"
