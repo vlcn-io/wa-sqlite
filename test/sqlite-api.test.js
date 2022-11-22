@@ -1,6 +1,6 @@
 import { getSQLite, getSQLiteAsync } from './api-instances.js';
 import * as SQLite from '../src/sqlite-api.js';
-import sinon from '../.yarn/unplugged/sinon-npm-11.1.2-5325724cb2/node_modules/sinon/pkg/sinon-esm.js';
+import * as sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 
 const LIBVERSION = '3.39.2';
 const LIBVERSION_NUMBER = (function() {
@@ -29,6 +29,7 @@ function shared(sqlite3Ready) {
   });
 
   afterEach(async function() {
+    await sqlite3.exec(db, "select crsql_finalize()");
     await sqlite3.close(db);
     sinon.restore();
   });
@@ -64,7 +65,7 @@ function shared(sqlite3Ready) {
     const prepared = await sqlite3.prepare_v2(db, sqlite3.str_value(str));
 
     let result;
-    const cBlob = new Int8Array([8, 6, 7, 5, 3, 0, 9]);
+    const cBlob = new Uint8Array([8, 6, 7, 5, 3, 0, 9]);
     const cDouble = Math.PI;
     const cInt = 42;
     const cNull = null;
@@ -104,7 +105,7 @@ function shared(sqlite3Ready) {
       function(rowData, columnNames) {
         rowData = rowData.map(value => {
           // Blob results do not remain valid so copy to retain.
-          return value instanceof Int8Array ? Array.from(value) : value;
+          return value instanceof Uint8Array ? Array.from(value) : value;
         });
         results.push(rowData);
       });
@@ -192,7 +193,7 @@ function shared(sqlite3Ready) {
     const prepared = await sqlite3.prepare_v2(db, sqlite3.str_value(str));
 
     let result;
-    const vBlob = new Int8Array([8, 6, 7, 5, 3, 0, 9]);
+    const vBlob = new Uint8Array([8, 6, 7, 5, 3, 0, 9]);
     const vDouble = Math.PI;
     const vInt = 42;
     const vNull = null;
@@ -223,7 +224,7 @@ function shared(sqlite3Ready) {
     const values = [];
     await sqlite3.exec(db, `SELECT MyFunc(0, value) FROM tbl`, row => {
       // Blob results do not remain valid so copy to retain.
-      const value = row[0] instanceof Int8Array ? Array.from(row[0]) : row[0];
+      const value = row[0] instanceof Uint8Array ? Array.from(row[0]) : row[0];
       values.push(value);
     });
     const expected = [Array.from(vBlob), vDouble, vInt, vNull, vText];

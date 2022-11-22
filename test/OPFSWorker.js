@@ -38,7 +38,7 @@ addEventListener('message', async function({data}) {
       }
 
       // Return pData arrays.
-      if (arg?.value instanceof Int8Array) {
+      if (arg?.value instanceof Uint8Array) {
         response.values.push(arg.value);
       }
 

@@ -22,7 +22,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     mime: { 'application/wasm': ['wasm'] },
     files: [
-      { pattern: '.yarn/unplugged/**/*.js', type: 'module', included: false },
+      { pattern: 'node_modules/sinon/**/*.js', type: 'module', included: false },
       { pattern: '{dist,debug}/*.mjs', type: 'module', included: false },
       { pattern: '{dist,debug}/*.wasm', type: 'wasm', included: false },
       { pattern: 'test/*.test.js', type: 'module' },

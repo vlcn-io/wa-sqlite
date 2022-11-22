@@ -66,6 +66,7 @@ describe('ArrayModule', function() {
   });
 
   afterEach(async function() {
+    await setup.sqlite3.exec(setup.db, "select crsql_finalize()");
     await setup.sqlite3.close(setup.db);
   });
 
@@ -83,6 +84,7 @@ describe('ArrayAsyncModule', function() {
   });
 
   afterEach(async function() {
+    await setup.sqlite3.exec(setup.db, "select crsql_finalize()");
     await setup.sqlite3.close(setup.db);
   });
 

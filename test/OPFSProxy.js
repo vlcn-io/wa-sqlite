@@ -42,7 +42,7 @@ export function makeOPFSProxy() {
           args.forEach(arg => {
             if (arg?.set) {
               arg.set(response.setters.shift());
-            } else if (arg?.value instanceof Int8Array) {
+            } else if (arg?.value instanceof Uint8Array) {
               arg.value.set(response.values.shift())
             }
           });
