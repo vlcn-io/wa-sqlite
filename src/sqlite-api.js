@@ -716,6 +716,16 @@ export function Factory(Module) {
     };
   })();
 
+  sqlite3.value_int64 = (function() {
+    const fname = 'sqlite3_value_int64';
+    const f = Module.cwrap(fname, ...decl('n:n'));
+    return function(pValue) {
+      const result = f(pValue);
+      // trace(fname, result);
+      return result;
+    };
+  })();
+
   sqlite3.value_text = (function() {
     const fname = 'sqlite3_value_text';
     const f = Module.cwrap(fname, ...decl('n:s'));

@@ -141,6 +141,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
   }
 
   xRead(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     return this.handleAsync(async () => {
       const file = this.#mapIdToFile.get(fileId);
       iOffset = Number(iOffset)
@@ -185,6 +186,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
   }
 
   xWrite(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     const file = this.#mapIdToFile.get(fileId);
     log(`xWrite ${file.path} ${pData.value.length} ${iOffset}`);
     iOffset = Number(iOffset);

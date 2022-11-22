@@ -72,6 +72,7 @@ function shared(ready) {
   });
 
   afterEach(async function() {
+    await sqlite3.exec(db, "select crsql_finalize()");
     await sqlite3.close(db);
   });
 
@@ -486,6 +487,7 @@ function shared(ready) {
     expect(resultA[0][0]).toBeGreaterThan(0);
 
     // Close and reopen the database.
+    await sqlite3.exec(db, "select crsql_finalize()");
     await sqlite3.close(db);
     db = await sqlite3.open_v2('foo', 0x06, vfs.name);
 
