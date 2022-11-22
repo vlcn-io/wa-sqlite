@@ -218,7 +218,11 @@ export function Factory(Module) {
       case SQLite.SQLITE_FLOAT:
         return sqlite3.column_double(stmt, iCol);
       case SQLite.SQLITE_INTEGER:
-        return sqlite3.column_int(stmt, iCol);
+        let arg = sqlite3.column_int64(stmt, iCol);
+        if (arg >= Number.MIN_SAFE_INTEGER && arg <= Number.MAX_SAFE_INTEGER) {
+          return Number(arg);
+        }
+        return arg;
       case SQLite.SQLITE_NULL:
         return null;
       case SQLite.SQLITE_TEXT:
@@ -276,6 +280,17 @@ export function Factory(Module) {
 
   sqlite3.column_int = (function() {
     const fname = 'sqlite3_column_int';
+    const f = Module.cwrap(fname, ...decl('nn:n'));
+    return function(stmt, iCol) {
+      verifyStatement(stmt);
+      const result = f(stmt, iCol);
+      // trace(fname, result);
+      return result;
+    };
+  })();
+
+  sqlite3.column_int64 = (function() {
+    const fname = 'sqlite3_column_int64';
     const f = Module.cwrap(fname, ...decl('nn:n'));
     return function(stmt, iCol) {
       verifyStatement(stmt);
@@ -456,6 +471,9 @@ export function Factory(Module) {
           sqlite3.result_double(context, value);
         }
         break;
+      case 'bigint':
+        sqlite3.result_int64(context, value);
+        break;
       case 'string':
         sqlite3.result_text(context, value);
         break;
@@ -495,6 +513,14 @@ export function Factory(Module) {
 
   sqlite3.result_int = (function() {
     const fname = 'sqlite3_result_int';
+    const f = Module.cwrap(fname, ...decl('nn:n'));
+    return function(context, value) {
+      f(context, value); // void return
+    };
+  })();
+
+  sqlite3.result_int64 = (function() {
+    const fname = 'sqlite3_result_int64';
     const f = Module.cwrap(fname, ...decl('nn:n'));
     return function(context, value) {
       f(context, value); // void return
@@ -634,7 +660,11 @@ export function Factory(Module) {
       case SQLite.SQLITE_FLOAT:
         return sqlite3.value_double(pValue);
       case SQLite.SQLITE_INTEGER:
-        return sqlite3.value_int(pValue);
+        let arg = sqlite3.value_int64(pValue);
+        if (arg >= Number.MIN_SAFE_INTEGER && arg <= Number.MAX_SAFE_INTEGER) {
+          return Number(arg);
+        }
+        return arg;
       case SQLite.SQLITE_NULL:
         return null;
       case SQLite.SQLITE_TEXT:
