@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.10.0
+
+### Minor Changes
+
+- incorporate schema fitness checks
+
 ## 0.9.0
 
 ### Minor Changes
