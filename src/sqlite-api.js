@@ -315,6 +315,12 @@ export function Factory(Module) {
     };
   })();
 
+  sqlite3.commit_hook = function(db, xCommit, pApp) {
+    verifyDatabase(db);
+    Module.commitHook(db, xCommit, pApp);
+    return SQLite.SQLITE_OK;
+  }
+
   sqlite3.create_function = function(db, zFunctionName, nArg, eTextRep, pApp, xFunc, xStep, xFinal) {
     verifyDatabase(db);
     if (xFunc && !xStep && !xFinal) {

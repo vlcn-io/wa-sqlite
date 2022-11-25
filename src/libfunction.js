@@ -6,6 +6,20 @@ const fn_methods = {
     const mapIdToFunction = new Map();
     const mapContextToAppData = new Map();
 
+    Module['commitHook'] = function(db, f, pAppData) {
+      const key = mapIdToFunction.size;
+      mapIdToFunction.set(key, {
+        f,
+        appData: pAppData
+      });
+      return ccall(
+        'commit_hook',
+        'void',
+        ['number', 'number'],
+        [db, key]
+      );
+    }
+
     Module['createFunction'] =
       function(db, zFunctionName, nArg, eTextRep, pAppData, f) {
         const key = mapIdToFunction.size;
@@ -39,6 +53,11 @@ const fn_methods = {
       return mapContextToAppData.get(pContext);
     }
 
+    _jsCommitHook = function(pApp) {
+      const f = mapIdToFunction.get(pApp);
+      f.f(pApp);
+    }
+
     _jsFunc = function(pApp, pContext, iCount, ppValues) {
       const f = mapIdToFunction.get(pApp);
       mapContextToAppData.set(pContext, f.appData);
@@ -66,7 +85,8 @@ const fn_methods = {
 const FN_METHOD_NAMES = [
   "jsFunc",
   "jsStep",
-  "jsFinal"
+  "jsFinal",
+  "jsCommitHook"
 ];
 for (const method of FN_METHOD_NAMES) {
   fn_methods[method] = function() {};

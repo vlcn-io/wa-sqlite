@@ -552,6 +552,8 @@ declare interface SQLiteAPI {
    */
   column_type(stmt: number, i: number): number;
 
+  commit_hook(db: number, xCommit: (appData: any) => void, pApp: number): void;
+
   /**
    * Create or redefine SQL functions
    * @see https://sqlite.org/c3ref/create_function.html
