@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.11.0
+
+### Minor Changes
+
+- fix multi-way merge
+
 ## 0.10.0
 
 ### Minor Changes
