@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.11.1
+
+### Patch Changes
+
+- fix memory leak when applying changesets
+
 ## 0.11.0
 
 ### Minor Changes
