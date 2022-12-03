@@ -43,6 +43,7 @@ export class MemoryAsyncVFS extends MemoryVFS {
    * @returns {number|Promise<number>}
    */
   xRead(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     return this.handleAsync(async () => super.xRead(fileId, pData, iOffset));
   }
 
@@ -53,6 +54,7 @@ export class MemoryAsyncVFS extends MemoryVFS {
    * @returns {number|Promise<number>}
    */
   xWrite(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     return this.handleAsync(async () => super.xWrite(fileId, pData, iOffset));
   }
 
