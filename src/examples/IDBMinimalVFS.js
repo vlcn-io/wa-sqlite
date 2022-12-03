@@ -122,6 +122,7 @@ export class IDBMinimalVFS extends VFS.Base {
   }
 
   xRead(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     return this.handleAsync(async () => {
       const file = this.#mapIdToFile.get(fileId);
       log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
@@ -151,6 +152,7 @@ export class IDBMinimalVFS extends VFS.Base {
   }
 
   xWrite(fileId, pData, iOffset) {
+    iOffset = Number(iOffset)
     const file = this.#mapIdToFile.get(fileId);
     log(`xWrite ${file.path} ${pData.value.length} ${iOffset}`);
 

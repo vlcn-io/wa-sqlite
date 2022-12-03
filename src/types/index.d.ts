@@ -15,7 +15,7 @@
  * each element converted to a byte); SQLite always returns blob data as
  * `Int8Array`
  */
-type SQLiteCompatibleType = number|string|Uint8Array|Array<number>|null;
+ type SQLiteCompatibleType = number|bigint|string|Uint8Array|Array<number>|null;
 
 /**
  * SQLite Virtual File System object
@@ -396,6 +396,18 @@ declare interface SQLiteAPI {
    */
   bind_int(stmt: number, i: number, value: number): number;
 
+  /**
+   * Bind BigInt to prepared statement parameter
+   * 
+   * Note that binding indices begin with 1.
+   * @see https://www.sqlite.org/c3ref/bind_blob.html
+   * @param stmt prepared statement pointer
+   * @param i binding index
+   * @param value 
+   * @returns `SQLITE_OK` (throws exception on error)
+   */
+   bind_int64(stmt: number, i: number, value: BigInt): number;
+
    /**
    * Bind null to prepared statement
    * 
@@ -512,6 +524,8 @@ declare interface SQLiteAPI {
    * @returns column value
    */
   column_int(stmt: number, i: number): number;
+
+  column_int64(stmt: number, i: number): bigint;
 
   /**
    * Get a column name for a prepared statement
@@ -738,6 +752,14 @@ declare interface SQLiteAPI {
    * Set the result of a function or vtable column
    * @see https://sqlite.org/c3ref/result_blob.html
    * @param context context pointer
+   * @param value 
+   */
+  result_int64(context: number, value: bigint): void;
+
+  /**
+   * Set the result of a function or vtable column
+   * @see https://sqlite.org/c3ref/result_blob.html
+   * @param context context pointer
    */
   result_null(context: number): void;
 
@@ -916,6 +938,14 @@ declare interface SQLiteAPI {
    * @returns value
    */
   value_int(pValue: number): number;
+
+  /**
+   * Extract a value from `sqlite3_value`
+   * @see https://sqlite.org/c3ref/value_blob.html
+   * @param pValue `sqlite3_value` pointer
+   * @returns value
+   */
+   value_int64(pValue: number): bigint;
 
   /**
    * Extract a value from `sqlite3_value`
