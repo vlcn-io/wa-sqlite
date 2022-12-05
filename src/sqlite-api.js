@@ -240,8 +240,12 @@ export function Factory(Module) {
       const nBytes = sqlite3.column_bytes(stmt, iCol);
       const address = f(stmt, iCol);
       const result = Module.HEAPU8.subarray(address, address + nBytes);
+
+      const dst = new ArrayBuffer(result.byteLength);
+      const ret = new Uint8Array(dst);
+      ret.set(result);
+      return ret;
       // trace(fname, result);
-      return result;
     };
   })();
 
