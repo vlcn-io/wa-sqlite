@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.11.2
+
+### Patch Changes
+
+- fix bigint overflow in wasm, fix site_id not being returned with changesets
+
 ## 0.11.1
 
 ### Patch Changes
