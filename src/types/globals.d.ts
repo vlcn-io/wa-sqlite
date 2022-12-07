@@ -10,7 +10,7 @@ declare function getValue(ptr: number, type: string): number;
 declare function setValue(ptr: number, value: number, type: string): number;
 declare function mergeInto(library: object, methods: object): void;
 
-declare var HEAP8: Int8Array;
+declare var HEAP8: Uint8Array;
 declare var LibraryManager;
 declare var Module;
 declare var _vfsAccess;
@@ -32,7 +32,7 @@ declare var _vfsWrite;
 declare var _jsFunc;
 declare var _jsStep;
 declare var _jsFinal;
-declare var _jsCommitHook;
+declare var _jsUpdateHook;
 
 declare var _modStruct;
 declare var _modCreate;

@@ -5,7 +5,7 @@
 extern void jsFunc(void *pApp, sqlite3_context *pContext, int iCount, sqlite3_value **ppValues);
 extern void jsStep(void *pApp, sqlite3_context *pContext, int iCount, sqlite3_value **ppValues);
 extern void jsFinal(void *pApp, sqlite3_context *pContext);
-extern int jsCommitHook(void *pApp);
+extern int jsUpdateHook(void *pApp, int updateType, const char *dbName, const char *tblName, sqlite3_int64 rowid);
 
 static void xFunc(sqlite3_context *pContext, int iCount, sqlite3_value **ppValues)
 {
@@ -22,9 +22,9 @@ static void xFinal(sqlite3_context *pContext)
   jsFinal(sqlite3_user_data(pContext), pContext);
 }
 
-static int xCommit(void *pApp)
+static void xUpdateHook(void *pApp, int updateType, const char *dbName, const char *tblName, sqlite3_int64 rowid)
 {
-  return jsCommitHook(pApp);
+  jsUpdateHook(pApp, updateType, dbName, tblName, rowid);
 }
 
 int EMSCRIPTEN_KEEPALIVE create_function(
@@ -46,9 +46,9 @@ int EMSCRIPTEN_KEEPALIVE create_function(
       functionType == 0 ? 0 : &xFinal);
 }
 
-void EMSCRIPTEN_KEEPALIVE commit_hook(
+void EMSCRIPTEN_KEEPALIVE update_hook(
     sqlite3 *db,
     void *pApp)
 {
-  sqlite3_commit_hook(db, &xCommit, pApp);
+  sqlite3_update_hook(db, &xUpdateHook, pApp);
 }

@@ -346,6 +346,12 @@ export function Factory(Module) {
     };
   })();
 
+  sqlite3.update_hook = function(db, xUpdate) {
+    verifyDatabase(db);
+    Module.updateHook(db, xUpdate);
+    return SQLite.SQLITE_OK;
+  }
+
   sqlite3.create_function = function(db, zFunctionName, nArg, eTextRep, pApp, xFunc, xStep, xFinal) {
     verifyDatabase(db);
     if (xFunc && !xStep && !xFinal) {

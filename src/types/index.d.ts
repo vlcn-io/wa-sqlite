@@ -568,7 +568,11 @@ declare interface SQLiteAPI {
    */
   column_type(stmt: number, i: number): number;
 
-  commit_hook(db: number, xCommit: (appData: any) => void, pApp: number): void;
+  update_hook(
+    db: number,
+    xUpdate:
+      (updateType: 9 | 18 | 23, dbName: string, tblName: string, rowid: bigint) => void
+  ): void;
 
   /**
    * Create or redefine SQL functions
