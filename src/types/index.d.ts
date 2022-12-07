@@ -470,7 +470,9 @@ declare interface SQLiteAPI {
    * Call the appropriate `column_*` function based on the column type
    * 
    * The type is determined by calling {@link column_type}, which may
-   * not match the type declared in `CREATE TABLE`.
+   * not match the type declared in `CREATE TABLE`. Note that if the column
+   * value is a blob then as with `column_blob` the result may be invalid
+   * after the next SQLite call.
    * @param stmt prepared statement pointer
    * @param i column index
    * @returns column value
@@ -612,6 +614,9 @@ declare interface SQLiteAPI {
 
   /**
    * One-step query execution interface
+   * 
+   * The implementation of this function uses {@link row}, which makes a
+   * copy of blobs.
    * @see https://www.sqlite.org/c3ref/exec.html
    * @param db database pointer
    * @param zSQL queries
@@ -773,6 +778,10 @@ declare interface SQLiteAPI {
 
    /**
     * Get all column data for a row from a prepared statement step
+    * 
+    * This convenience function will return a copy of any blob, unlike
+    * {@link column_blob} which returns a value referencing volatile WASM
+    * memory with short validity.
     * @param stmt prepared statement pointer
     * @returns row data
     */
@@ -897,7 +906,8 @@ declare interface SQLiteAPI {
    * Extract a value from `sqlite3_value`
    * 
    * This is a convenience function that calls the appropriate `value_*`
-   * function based on its type.
+   * function based on its type. Note that if the value is a blob then as
+   * with `value_blob` the result may be invalid after the next SQLite call.
    * @param pValue `sqlite3_value` pointer
    * @returns value
    */

@@ -552,7 +552,12 @@ export function Factory(Module) {
     const row = [];
     const nColumns = sqlite3.data_count(stmt);
     for (let i = 0; i < nColumns; ++i) {
-      row.push(sqlite3.column(stmt, i));
+      const value = sqlite3.column(stmt, i);
+
+      // Copy blob if aliasing volatile WebAssembly memory. This avoids an
+      // unnecessary copy if users monkey patch column_blob to copy.
+      // @ts-ignore
+      row.push(value?.buffer === Module.HEAP8.buffer ? value.slice() : value);
     }
     return row;
   };
