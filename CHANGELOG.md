@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.12.0
+
+### Minor Changes
+
+- fix tie breaking for merge, add example client-server sync
+
 ## 0.11.2
 
 ### Patch Changes
