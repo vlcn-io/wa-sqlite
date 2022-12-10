@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.12.1
+
+### Patch Changes
+
+- fix mem leak and cid win value selection bug
+
 ## 0.12.0
 
 ### Minor Changes
