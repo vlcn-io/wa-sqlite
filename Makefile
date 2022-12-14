@@ -209,10 +209,12 @@ tmp/bc/dist/test_extension.bc: src/test_extension.c
 
 $(RS_WASM_TARGET)/debug/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
 	mkdir -p tmp/bc/dist
+	cd ../rs/test_extension; \
 	RUSTFLAGS="--emit=llvm-bc" cargo build --target wasm32-unknown-unknown
 
 $(RS_WASM_TARGET)/release/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
 	mkdir -p tmp/bc/dist
+	cd ../rs/test_extension; \
 	RUSTFLAGS="--emit=llvm-bc" cargo build --release --target wasm32-unknown-unknown
 
 ## debug
