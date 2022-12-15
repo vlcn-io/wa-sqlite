@@ -200,12 +200,12 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 $(RS_WASM_TARGET)/debug/deps/test_runtime_ext.bc: ../rs/test_runtime_ext/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../rs/test_runtime_ext; \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --target wasm32-unknown-unknown
+	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,std --target wasm32-unknown-unknown
 
 $(RS_WASM_TARGET)/release/deps/test_runtime_ext.bc: ../rs/test_runtime_ext/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../rs/test_runtime_ext; \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --release --target wasm32-unknown-unknown
+	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,std --target wasm32-unknown-unknown
 
 ## debug
 .PHONY: clean-debug
