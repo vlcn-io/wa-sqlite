@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.12.2
+
+### Patch Changes
+
+- fix gh #108
+
 ## 0.12.1
 
 ### Patch Changes
