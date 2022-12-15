@@ -24,15 +24,13 @@ BITCODE_FILES_DEBUG = \
 	tmp/bc/debug/sqlite3.extra.bc tmp/bc/debug/extension-functions.bc \
 	tmp/bc/debug/libfunction.bc \
 	tmp/bc/debug/libmodule.bc \
-	tmp/bc/debug/libvfs.bc \
-	$(RS_WASM_TARGET)/debug/deps/test_runtime_ext.bc
+	tmp/bc/debug/libvfs.bc
 
 BITCODE_FILES_DIST = \
 	tmp/bc/dist/sqlite3.extra.bc tmp/bc/dist/extension-functions.bc \
 	tmp/bc/dist/libfunction.bc \
 	tmp/bc/dist/libmodule.bc \
-	tmp/bc/dist/libvfs.bc \
-	$(RS_WASM_TARGET)/release/deps/test_runtime_ext.bc
+	tmp/bc/dist/libvfs.bc
 
 sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.extra.c
 
@@ -198,12 +196,10 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
 $(RS_WASM_TARGET)/debug/deps/test_runtime_ext.bc: ../rs/test_runtime_ext/src/lib.rs
-	mkdir -p tmp/bc/dist
 	cd ../rs/test_runtime_ext; \
 	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,std --target wasm32-unknown-unknown
 
 $(RS_WASM_TARGET)/release/deps/test_runtime_ext.bc: ../rs/test_runtime_ext/src/lib.rs
-	mkdir -p tmp/bc/dist
 	cd ../rs/test_runtime_ext; \
 	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,std --target wasm32-unknown-unknown
 
@@ -215,19 +211,23 @@ clean-debug:
 .PHONY: debug
 debug: debug/wa-sqlite.mjs debug/wa-sqlite-async.mjs
 
-debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_WASM_TARGET)/debug/deps/test_runtime_ext.bc $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p debug
+	rm -f $(RS_WASM_TARGET)/debug/deps/panic_unwind*
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
+		$(RS_WASM_TARGET)/debug/deps/*.bc \
 	  $(BITCODE_FILES_DEBUG) -o $@
 
-debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(RS_WASM_TARGET)/debug/deps/test_runtime_ext.bc $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
+	rm -f $(RS_WASM_TARGET)/debug/deps/panic_unwind*
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DEBUG) \
+		$(RS_WASM_TARGET)/debug/deps/*.bc \
 	  $(BITCODE_FILES_DEBUG) -o $@
 
 ## dist
@@ -238,17 +238,21 @@ clean-dist:
 .PHONY: dist
 dist: dist/wa-sqlite.mjs dist/wa-sqlite-async.mjs
 
-dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(RS_WASM_TARGET)/release/deps/test_runtime_ext.bc $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
+	rm -f $(RS_WASM_TARGET)/release/deps/panic_unwind*
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
+		$(RS_WASM_TARGET)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) -o $@
 
-dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(RS_WASM_TARGET)/release/deps/test_runtime_ext.bc $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
+	rm -f $(RS_WASM_TARGET)/release/deps/panic_unwind*
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DIST) \
+		$(RS_WASM_TARGET)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) -o $@
