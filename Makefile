@@ -49,6 +49,7 @@ EMFLAGS_COMMON = \
 	-s INVOKE_RUN \
 	-s MAIN_MODULE=2 \
 	-s FORCE_FILESYSTEM \
+	-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 	--use-preload-plugins \
 	--no-node
 
