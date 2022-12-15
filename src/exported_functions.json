@@ -50,5 +50,7 @@
   "_sqlite3_value_int64",
   "_sqlite3_value_text",
   "_sqlite3_value_type",
-  "_sqlite3_vfs_find"
+  "_sqlite3_vfs_find",
+  "_sqlite3_load_extension",
+  "_sqlite3_enable_load_extension"
 ]

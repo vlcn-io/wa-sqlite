@@ -10,7 +10,7 @@ EXTENSION_FUNCTIONS_SHA = 991b40fe8b2799edc215f7260b890f14a833512c9d9896aa080891
 
 # source files
 
-LIBRARY_FILES = src/libfunction.js src/libmodule.js src/libvfs.js
+LIBRARY_FILES = src/libfunction.js src/libvfs.js
 EXPORTED_FUNCTIONS = src/exported_functions.json
 EXPORTED_RUNTIME_METHODS = src/extra_exported_runtime_methods.json
 ASYNCIFY_IMPORTS = src/asyncify_imports.json
@@ -21,22 +21,14 @@ sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
 RS_WASM_TARGET = ../rs/test_extension/target/wasm32-unknown-unknown
 
 BITCODE_FILES_DEBUG = \
-	tmp/bc/debug/sqlite3.extra.bc tmp/bc/debug/extension-functions.bc \
+	tmp/bc/debug/sqlite3.bc tmp/bc/debug/extension-functions.bc \
 	tmp/bc/debug/libfunction.bc \
-	tmp/bc/debug/libmodule.bc \
-	tmp/bc/debug/libvfs.bc \
-	tmp/bc/debug/test_extension.bc \
-	$(RS_WASM_TARGET)/debug/deps/test_extension.bc
+	tmp/bc/debug/libvfs.bc
 
 BITCODE_FILES_DIST = \
-	tmp/bc/dist/sqlite3.extra.bc tmp/bc/dist/extension-functions.bc \
+	tmp/bc/dist/sqlite3.bc tmp/bc/dist/extension-functions.bc \
 	tmp/bc/dist/libfunction.bc \
-	tmp/bc/dist/libmodule.bc \
-	tmp/bc/dist/libvfs.bc \
-	tmp/bc/debug/test_extension.bc \
-	$(RS_WASM_TARGET)/release/deps/test_extension.bc
-
-sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.extra.c
+	tmp/bc/dist/libvfs.bc
 
 # build options
 
@@ -44,7 +36,8 @@ EMCC ?= emcc
 
 CFLAGS_COMMON = \
 	-I'deps/$(SQLITE_AMALGAMATION)' \
-	-Wno-non-literal-null-conversion
+	-Wno-non-literal-null-conversion \
+	-fPIC
 
 CFLAGS_DEBUG = $(CFLAGS_COMMON) -g
 
@@ -53,7 +46,9 @@ CFLAGS_DIST = $(CFLAGS_COMMON) -Oz -flto
 EMFLAGS_COMMON = \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s WASM=1 \
-	-s INVOKE_RUN
+	-s INVOKE_RUN \
+	-s MAIN_MODULE=2 \
+	-s FORCE_FILESYSTEM
 
 EMFLAGS_DEBUG = $(EMFLAGS_COMMON) \
 	-s ASSERTIONS=1 \
@@ -61,8 +56,8 @@ EMFLAGS_DEBUG = $(EMFLAGS_COMMON) \
 
 EMFLAGS_DIST = $(EMFLAGS_COMMON) \
 	-Oz \
-	-flto \
-	--closure 1
+	-flto
+# --closure 1
 
 EMFLAGS_INTERFACES = \
 	-s EXPORTED_FUNCTIONS=@$(EXPORTED_FUNCTIONS) \
@@ -70,7 +65,6 @@ EMFLAGS_INTERFACES = \
 
 EMFLAGS_LIBRARIES = \
 	--js-library src/libfunction.js \
-	--js-library src/libmodule.js \
 	--js-library src/libvfs.js
 
 EMFLAGS_ASYNCIFY_COMMON = \
@@ -95,13 +89,14 @@ WASQLITE_DEFINES ?= \
 	-DSQLITE_OMIT_AUTOINIT \
 	-DSQLITE_OMIT_DECLTYPE \
 	-DSQLITE_OMIT_DEPRECATED \
-	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_OMIT_PROGRESS_CALLBACK \
 	-DSQLITE_OMIT_SHARED_CACHE \
 	-DSQLITE_THREADSAFE=0 \
 	-DSQLITE_USE_ALLOCA \
-	-DSQLITE_EXTRA_INIT=core_init \
 	-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE
+
+# -DSQLITE_OMIT_LOAD_EXTENSION 
+# -DSQLITE_EXTRA_INIT=core_init
 
 # directories
 .PHONY: all
@@ -156,12 +151,9 @@ deps/$(EXTENSION_FUNCTIONS): cache/$(EXTENSION_FUNCTIONS)
 clean-tmp:
 	rm -rf tmp
 
-$(sqlite3.extra.c): $(sqlite3.c) src/core_init.c
-	cat $(sqlite3.c) src/core_init.c > $@
-
-tmp/bc/debug/sqlite3.extra.bc: $(sqlite3.extra.c) deps/$(SQLITE_AMALGAMATION)
+tmp/bc/debug/sqlite3.bc: deps/$(SQLITE_AMALGAMATION)
 	mkdir -p tmp/bc/debug
-	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $(sqlite3.extra.c) -c -o $@
+	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $(sqlite3.c) -c -o $@
 
 tmp/bc/debug/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/debug
@@ -171,21 +163,13 @@ tmp/bc/debug/libfunction.bc: src/libfunction.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libmodule.bc: src/libmodule.c
-	mkdir -p tmp/bc/debug
-	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
-
 tmp/bc/debug/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/test_extension.bc: src/test_extension.c
-	mkdir -p tmp/bc/debug
-	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
-
-tmp/bc/dist/sqlite3.extra.bc: $(sqlite3.extra.c) deps/$(SQLITE_AMALGAMATION)
+tmp/bc/dist/sqlite3.bc: $(sqlite3.c) deps/$(SQLITE_AMALGAMATION)
 	mkdir -p tmp/bc/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $(sqlite3.extra.c) -c -o $@
+	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $(sqlite3.c) -c -o $@
 
 tmp/bc/dist/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/dist
@@ -195,27 +179,9 @@ tmp/bc/dist/libfunction.bc: src/libfunction.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libmodule.bc: src/libmodule.c
-	mkdir -p tmp/bc/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
-
 tmp/bc/dist/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
-
-tmp/bc/dist/test_extension.bc: src/test_extension.c
-	mkdir -p tmp/bc/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
-
-$(RS_WASM_TARGET)/debug/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
-	mkdir -p tmp/bc/dist
-	cd ../rs/test_extension; \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --target wasm32-unknown-unknown
-
-$(RS_WASM_TARGET)/release/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
-	mkdir -p tmp/bc/dist
-	cd ../rs/test_extension; \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --release --target wasm32-unknown-unknown
 
 ## debug
 .PHONY: clean-debug

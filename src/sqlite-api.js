@@ -475,7 +475,9 @@ export function Factory(Module) {
       databases.add(db);
       Module._sqlite3_free(zVfs);
 
-      Module.ccall('RegisterExtensionFunctions', 'void', ['number'], [db]);
+      // TODO: 
+      // Module.ccall('RegisterExtensionFunctions', 'void', ['number'], [db]);
+      Module.ccall('sqlite3_enable_load_extension', 'int', ['number', 'number'], [db, 1]);
       check(fname, result);
       return db;
     };
