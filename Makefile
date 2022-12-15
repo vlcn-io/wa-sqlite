@@ -48,7 +48,9 @@ EMFLAGS_COMMON = \
 	-s WASM=1 \
 	-s INVOKE_RUN \
 	-s MAIN_MODULE=2 \
-	-s FORCE_FILESYSTEM
+	-s FORCE_FILESYSTEM \
+	--use-preload-plugins \
+	--no-node
 
 EMFLAGS_DEBUG = $(EMFLAGS_COMMON) \
 	-s ASSERTIONS=1 \
