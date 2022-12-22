@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.13.1
+
+### Patch Changes
+
+- rebuild all
+
 ## 0.13.0
 
 ### Minor Changes
