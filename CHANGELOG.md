@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.13.0
+
+### Minor Changes
+
+- breaking change -- fix version recording problem that prevented convergence in p2p cases
+
 ## 0.12.2
 
 ### Patch Changes
