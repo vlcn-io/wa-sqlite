@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.13.3
+
+### Patch Changes
+
+- deploy table validation fix
+
 ## 0.13.2
 
 ### Patch Changes
