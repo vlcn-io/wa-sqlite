@@ -15,7 +15,7 @@
  * each element converted to a byte); SQLite always returns blob data as
  * `Int8Array`
  */
-type SQLiteCompatibleType = number|string|Uint8Array|Array<number>|BigInt|null;
+type SQLiteCompatibleType = number|string|Uint8Array|Array<number>|bigint|null;
 
 /**
  * SQLite Virtual File System object
@@ -406,7 +406,7 @@ declare interface SQLiteAPI {
    * @param value 
    * @returns `SQLITE_OK` (throws exception on error)
    */
-   bind_int64(stmt: number, i: number, value: BigInt): number;
+   bind_int64(stmt: number, i: number, value: bigint): number;
 
     /**
    * Bind null to prepared statement
