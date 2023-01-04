@@ -76,7 +76,6 @@ export class MemoryVFS extends VFS.Base {
    * @returns {number|Promise<number>}
    */
   xRead(fileId, pData, iOffset) {
-    iOffset = Number(iOffset)
     const file = this.mapIdToFile.get(fileId);
 
     // Clip the requested read to the file boundary.
@@ -103,7 +102,6 @@ export class MemoryVFS extends VFS.Base {
    * @returns {number|Promise<number>}
    */
   xWrite(fileId, pData, iOffset) {
-    iOffset = Number(iOffset)
     const file = this.mapIdToFile.get(fileId);
     if (iOffset + pData.size > file.data.byteLength) {
       // Resize the ArrayBuffer to hold more data.

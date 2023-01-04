@@ -151,7 +151,6 @@ export class IDBVersionedVFS extends VFS.Base {
   }
 
   xRead(fileId, pData, iOffset) {
-    iOffset = Number(iOffset)
     return this.handleAsync(async () => {
       // Special handling for journal files.
       const file = this.#mapIdToFile.get(fileId);
@@ -226,7 +225,6 @@ export class IDBVersionedVFS extends VFS.Base {
    * @returns 
    */
   async #xReadJournal(file, pData, iOffset) {
-    iOffset = Number(iOffset)
     log(`xRead (journal) ${file.path} ${pData.size} ${iOffset}`);
 
     const dbPath = this.#getJournalDatabasePath(file);
@@ -273,7 +271,6 @@ export class IDBVersionedVFS extends VFS.Base {
   }
 
   xWrite(fileId, pData, iOffset) {
-    iOffset = Number(iOffset)
     const file = this.#mapIdToFile.get(fileId);
     if (this.#isDatabase(file)) {
       return this.#xWriteDatabase(file, pData, iOffset);
@@ -364,7 +361,6 @@ export class IDBVersionedVFS extends VFS.Base {
    * @param {number} iOffset 
    */
   #xWriteDatabase(file, pData, iOffset) {
-    iOffset = Number(iOffset)
     log(`xWrite (database) ${file.path} ${pData.size} ${iOffset}`);
 
     // Database writes (and reads) should be a complete single page.
@@ -404,7 +400,6 @@ export class IDBVersionedVFS extends VFS.Base {
    * @param {number} iOffset 
    */
   #xWriteJournal(file, pData, iOffset) {
-    iOffset = Number(iOffset)
     log(`xWrite (journal) ${file.path} ${pData.size} ${iOffset}`);
 
     // Get the associated opened database file.
