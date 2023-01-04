@@ -123,7 +123,6 @@ export class MemoryVFS extends VFS.Base {
    * @returns {number|Promise<number>}
    */
   xTruncate(fileId, iSize) {
-    iSize = Number(iSize);
     const file = this.mapIdToFile.get(fileId);
 
     // For simplicity we don't make the ArrayBuffer smaller.

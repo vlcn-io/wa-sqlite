@@ -112,8 +112,6 @@ export function Factory(Module) {
         } else {
           return sqlite3.bind_double(stmt, i, value);
         }
-        // TODO: proper bing_int64
-      case 'bigint':
       case 'string':
         return sqlite3.bind_text(stmt, i, value);
       default:
@@ -283,10 +281,7 @@ export function Factory(Module) {
       const address = f(stmt, iCol);
       const result = Module.HEAPU8.subarray(address, address + nBytes);
 
-      const dst = new ArrayBuffer(result.byteLength);
-      const ret = new Uint8Array(dst);
-      ret.set(result);
-      return ret;
+      return result;
       // trace(fname, result);
     };
   })();

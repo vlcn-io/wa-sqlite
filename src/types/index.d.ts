@@ -408,18 +408,6 @@ declare interface SQLiteAPI {
    */
    bind_int64(stmt: number, i: number, value: BigInt): number;
 
-   /**
-   * Bind number to prepared statement parameter
-   * 
-   * Note that binding indices begin with 1.
-   * @see https://www.sqlite.org/c3ref/bind_blob.html
-   * @param stmt prepared statement pointer
-   * @param i binding index
-   * @param value 
-   * @returns `SQLITE_OK` (throws exception on error)
-   */
-   bind_int64(stmt: number, i: number, value: bigint): number;
-
     /**
    * Bind null to prepared statement
    * 
@@ -541,8 +529,6 @@ declare interface SQLiteAPI {
    * @returns column value
    */
   column_int(stmt: number, i: number): number;
-
-  column_int64(stmt: number, i: number): bigint;
 
   /**
    * Extract a column value from a row after a prepared statment {@link step}
