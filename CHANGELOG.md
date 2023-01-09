@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.0
+
+### Minor Changes
+
+- seen peers, binary encoding for network layer, retry on disconnect for server, auto-track peers
+
 ## 0.13.3
 
 ### Patch Changes
