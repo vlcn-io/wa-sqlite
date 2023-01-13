@@ -19,23 +19,21 @@ sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
 
 # intermediate files
 RS_LIB = nostd_extension
-RS_WASM_TARGET = ../../examples/$(RS_LIB)/target/wasm32-unknown-unknown
+RS_WASM_TARGET = ../../examples/$(RS_LIB)/target/wasm32-unknown-emscripten
+RS_RELEASE_BC = $(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc
+RS_DEBUG_BC = $(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc
 
 BITCODE_FILES_DEBUG = \
 	tmp/bc/debug/sqlite3.extra.bc tmp/bc/debug/extension-functions.bc \
 	tmp/bc/debug/libfunction.bc \
 	tmp/bc/debug/libmodule.bc \
-	tmp/bc/debug/libvfs.bc \
-	tmp/bc/debug/$(RS_LIB).bc \
-	$(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc
+	tmp/bc/debug/libvfs.bc
 
 BITCODE_FILES_DIST = \
 	tmp/bc/dist/sqlite3.extra.bc tmp/bc/dist/extension-functions.bc \
 	tmp/bc/dist/libfunction.bc \
 	tmp/bc/dist/libmodule.bc \
-	tmp/bc/dist/libvfs.bc \
-	tmp/bc/debug/$(RS_LIB).bc \
-	$(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc
+	tmp/bc/dist/libvfs.bc
 
 sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.extra.c
 
@@ -135,12 +133,13 @@ clean-deps:
 	rm -rf deps
 
 .PHONY: deps
-deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS) deps/$(EXPORTED_FUNCTIONS)
+deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS) $(EXPORTED_FUNCTIONS)
 
 deps/$(SQLITE_AMALGAMATION): cache/$(SQLITE_AMALGAMATION).zip
 	mkdir -p deps
 	openssl dgst -sha256 -r cache/$(SQLITE_AMALGAMATION).zip | sed -e 's/ .*//' > deps/sha
-	echo $(SQLITE_AMALGAMATION_ZIP_SHA) | cmp deps/sha
+	echo $(SQLITE_AMALGAMATION_ZIP_SHA) > deps/sha-expected
+	cmp deps/sha deps/sha-expected
 	rm -rf deps/sha $@
 	unzip 'cache/$(SQLITE_AMALGAMATION).zip' -d deps/
 	touch $@
@@ -148,7 +147,8 @@ deps/$(SQLITE_AMALGAMATION): cache/$(SQLITE_AMALGAMATION).zip
 deps/$(EXTENSION_FUNCTIONS): cache/$(EXTENSION_FUNCTIONS)
 	mkdir -p deps
 	openssl dgst -sha256 -r cache/$(EXTENSION_FUNCTIONS) | sed -e 's/ .*//' > deps/sha
-	echo $(EXTENSION_FUNCTIONS_SHA) | cmp deps/sha
+	echo $(EXTENSION_FUNCTIONS_SHA) > deps/sha-expected
+	cmp deps/sha deps/sha-expected
 	rm -rf deps/sha $@
 	cp 'cache/$(EXTENSION_FUNCTIONS)' $@
 
@@ -200,15 +200,15 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-$(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc: ../../examples/$(RS_LIB)/src/lib.rs
+$(RS_DEBUG_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --target wasm32-unknown-unknown
+	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,core,alloc --target wasm32-unknown-emscripten
 
-$(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc: ../../examples/$(RS_LIB)/src/lib.rs
+$(RS_RELEASE_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --release --target wasm32-unknown-unknown
+	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,core,alloc --target wasm32-unknown-emscripten
 
 ## debug
 .PHONY: clean-debug
@@ -218,19 +218,21 @@ clean-debug:
 .PHONY: debug
 debug: debug/wa-sqlite.mjs debug/wa-sqlite-async.mjs
 
-debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
+		$(RS_WASM_TARGET)/debug/deps/*.bc \
 	  $(BITCODE_FILES_DEBUG) -o $@
 
-debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DEBUG) \
+		$(RS_WASM_TARGET)/debug/deps/*.bc \
 	  $(BITCODE_FILES_DEBUG) -o $@
 
 ## dist
@@ -241,17 +243,19 @@ clean-dist:
 .PHONY: dist
 dist: dist/wa-sqlite.mjs dist/wa-sqlite-async.mjs
 
-dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
+		$(RS_WASM_TARGET)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) -o $@
 
-dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DIST) \
+		$(RS_WASM_TARGET)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) -o $@
