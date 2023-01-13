@@ -19,7 +19,8 @@ sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
 
 # intermediate files
 RS_LIB = nostd_extension
-RS_WASM_TARGET = ../../examples/$(RS_LIB)/target/wasm32-unknown-emscripten
+RS_WASM_TGT=wasm32-unknown-emscripten
+RS_WASM_TARGET = ../../examples/$(RS_LIB)/target/$(RS_WASM_TGT)
 RS_RELEASE_BC = $(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc
 RS_DEBUG_BC = $(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc
 
@@ -203,12 +204,12 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 $(RS_DEBUG_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,core,alloc --target wasm32-unknown-emscripten
+	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 $(RS_RELEASE_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
 	cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,core,alloc --target wasm32-unknown-emscripten
+	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 ## debug
 .PHONY: clean-debug

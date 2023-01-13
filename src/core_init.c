@@ -4,4 +4,5 @@ int sqlite3_nostdextension_init(sqlite3 *db, char **pzErrMsg,
 int core_init(const char *dummy)
 {
   return sqlite3_auto_extension((void *)sqlite3_nostdextension_init);
+  // return SQLITE_OK;
 }
