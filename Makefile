@@ -18,23 +18,24 @@ ASYNCIFY_IMPORTS = src/asyncify_imports.json
 sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
 
 # intermediate files
-RS_WASM_TARGET = ../rs/test_extension/target/wasm32-unknown-unknown
+RS_LIB = nostd_extension
+RS_WASM_TARGET = ../../examples/$(RS_LIB)/target/wasm32-unknown-unknown
 
 BITCODE_FILES_DEBUG = \
 	tmp/bc/debug/sqlite3.extra.bc tmp/bc/debug/extension-functions.bc \
 	tmp/bc/debug/libfunction.bc \
 	tmp/bc/debug/libmodule.bc \
 	tmp/bc/debug/libvfs.bc \
-	tmp/bc/debug/test_extension.bc \
-	$(RS_WASM_TARGET)/debug/deps/test_extension.bc
+	tmp/bc/debug/$(RS_LIB).bc \
+	$(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc
 
 BITCODE_FILES_DIST = \
 	tmp/bc/dist/sqlite3.extra.bc tmp/bc/dist/extension-functions.bc \
 	tmp/bc/dist/libfunction.bc \
 	tmp/bc/dist/libmodule.bc \
 	tmp/bc/dist/libvfs.bc \
-	tmp/bc/debug/test_extension.bc \
-	$(RS_WASM_TARGET)/release/deps/test_extension.bc
+	tmp/bc/debug/$(RS_LIB).bc \
+	$(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc
 
 sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.extra.c
 
@@ -179,10 +180,6 @@ tmp/bc/debug/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/test_extension.bc: src/test_extension.c
-	mkdir -p tmp/bc/debug
-	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
-
 tmp/bc/dist/sqlite3.extra.bc: $(sqlite3.extra.c) deps/$(SQLITE_AMALGAMATION)
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $(sqlite3.extra.c) -c -o $@
@@ -203,18 +200,14 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/test_extension.bc: src/test_extension.c
+$(RS_WASM_TARGET)/debug/deps/$(RS_LIB).bc: ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
-
-$(RS_WASM_TARGET)/debug/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
-	mkdir -p tmp/bc/dist
-	cd ../rs/test_extension; \
+	cd ../../examples/$(RS_LIB); \
 	RUSTFLAGS="--emit=llvm-bc" cargo build --target wasm32-unknown-unknown
 
-$(RS_WASM_TARGET)/release/deps/test_extension.bc: ../rs/test_extension/src/lib.rs
+$(RS_WASM_TARGET)/release/deps/$(RS_LIB).bc: ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
-	cd ../rs/test_extension; \
+	cd ../../examples/$(RS_LIB); \
 	RUSTFLAGS="--emit=llvm-bc" cargo build --release --target wasm32-unknown-unknown
 
 ## debug
