@@ -475,6 +475,7 @@ export function Factory(Module) {
       databases.add(db);
       Module._sqlite3_free(zVfs);
 
+      // TOOD: we can register these in non-debug mode
       // Module.ccall('RegisterExtensionFunctions', 'void', ['number'], [db]);
       check(fname, result);
       return db;
