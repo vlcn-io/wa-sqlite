@@ -202,21 +202,18 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-# We intentionally ignore the errors from rust here
-# since Rust will fail to link but will leave the llvm bitcode behind
-# that we need. We do the linking with that.
-# If rust hit a _real_ error then the bitcode will be empty and we'll
-# fail when we try to link it.
+# We intentionally skip linking in the Rust command.
+# This is because this Makefile will do the linking
 $(RS_DEBUG_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
-	- cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
+	cd ../../examples/$(RS_LIB); \
+	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 # See comments on debug
 $(RS_RELEASE_BC): ../../examples/$(RS_LIB)/src/lib.rs
 	mkdir -p tmp/bc/dist
-	- cd ../../examples/$(RS_LIB); \
-	RUSTFLAGS="--emit=llvm-bc" cargo build --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
+	cd ../../examples/$(RS_LIB); \
+	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 ## debug
 .PHONY: clean-debug
