@@ -217,13 +217,13 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-$(RS_DEBUG_BC): $(RS_LIB_DIR)/src/lib.rs
+$(RS_DEBUG_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
 	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 # See comments on debug
-$(RS_RELEASE_BC): $(RS_LIB_DIR)/src/lib.rs
+$(RS_RELEASE_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
 	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
@@ -278,3 +278,5 @@ dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o
 		$(CFLAGS_DIST) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) *.o -o $@
+
+FORCE: ;
