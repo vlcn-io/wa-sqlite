@@ -25,13 +25,11 @@ RS_RELEASE_BC = $(RS_WASM_TGT_DIR)/release/deps/$(RS_LIB).bc
 RS_DEBUG_BC = $(RS_WASM_TGT_DIR)/debug/deps/$(RS_LIB).bc
 
 BITCODE_FILES_DEBUG = \
-	tmp/bc/debug/extension-functions.bc \
 	tmp/bc/debug/libfunction.bc \
 	tmp/bc/debug/libmodule.bc \
 	tmp/bc/debug/libvfs.bc
 
 BITCODE_FILES_DIST = \
-	tmp/bc/dist/extension-functions.bc \
 	tmp/bc/dist/libfunction.bc \
 	tmp/bc/dist/libmodule.bc \
 	tmp/bc/dist/libvfs.bc
