@@ -1,4 +1,5 @@
 [
+  "_RegisterExtensionFunctions",
   "_main",
   "_malloc",
   "_free",
