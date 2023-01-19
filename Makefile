@@ -112,12 +112,11 @@ WASQLITE_DEFINES ?= \
 	-DSQLITE_OMIT_DEPRECATED \
 	-DSQLITE_OMIT_PROGRESS_CALLBACK \
 	-DSQLITE_OMIT_SHARED_CACHE \
+	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_THREADSAFE=0 \
 	-DSQLITE_USE_ALLOCA \
 	-DSQLITE_EXTRA_INIT=core_init \
 	-DSQLITE_ENABLE_BATCH_ATOMIC_WRITE
-
-# 	-DSQLITE_OMIT_LOAD_EXTENSION \
 
 # directories
 .PHONY: all
@@ -218,13 +217,13 @@ tmp/bc/dist/libvfs.bc: src/libvfs.c
 $(RS_DEBUG_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
-	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
+	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --features omit_load_extension -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 # See comments on debug
 $(RS_RELEASE_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
-	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
+	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --features omit_load_extension --release -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 ## debug
 .PHONY: clean-debug
