@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.1-next.0
+
+### Patch Changes
+
+- hooks, fixes to support examples, auto-determine tables queried
+
 ## 0.14.0
 
 ### Minor Changes
