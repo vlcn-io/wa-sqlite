@@ -1,5 +1,12 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.1
+
+### Patch Changes
+
+- 519bcfc2a: hooks, fixes to support examples, auto-determine tables queried
+- hooks package, used_tables query, web only target for wa-sqlite
+
 ## 0.14.1-next.0
 
 ### Patch Changes
