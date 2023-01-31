@@ -18,7 +18,7 @@ ASYNCIFY_IMPORTS = src/asyncify_imports.json
 # intermediate files
 
 RS_LIB = crsql_bundle
-RS_LIB_DIR = ../../rs/bundle
+RS_LIB_DIR = ../../core/rs/bundle
 RS_WASM_TGT = wasm32-unknown-emscripten
 RS_WASM_TGT_DIR = $(RS_LIB_DIR)/target/$(RS_WASM_TGT)
 RS_RELEASE_BC = $(RS_WASM_TGT_DIR)/release/deps/$(RS_LIB).bc
