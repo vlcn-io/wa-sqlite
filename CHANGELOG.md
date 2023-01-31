@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.2-next.0
+
+### Patch Changes
+
+- fractional indexing inclusion
+
 ## 0.14.1
 
 ### Patch Changes
