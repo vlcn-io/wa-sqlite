@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.2-next.1
+
+### Patch Changes
+
+- auto-release prepared statements
+
 ## 0.14.2-next.0
 
 ### Patch Changes
