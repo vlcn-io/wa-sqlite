@@ -281,7 +281,10 @@ export function Factory(Module) {
       const address = f(stmt, iCol);
       const result = Module.HEAPU8.subarray(address, address + nBytes);
 
-      return result;
+      const dst = new ArrayBuffer(result.byteLength);
+      const ret = new Uint8Array(dst);
+      ret.set(result);
+      return ret;
       // trace(fname, result);
     };
   })();
