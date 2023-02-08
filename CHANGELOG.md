@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.14.3
+
+### Patch Changes
+
+- 64bit rowid support in update hook, fixup cache key calculating for bind args
+
 ## 0.14.2
 
 ### Patch Changes
