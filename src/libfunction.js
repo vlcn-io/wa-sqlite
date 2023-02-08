@@ -63,12 +63,13 @@ const fn_methods = {
       return mapContextToAppData.get(pContext);
     }
 
-    _jsUpdateHook = function(pApp, updateType, dbName, tblName, rowid) {
+    _jsUpdateHook = function(pApp, updateType, dbName, tblName, lo32, hi32) {
       const f = mapIdToFunction.get(pApp);
       // TODO: convery dbName and tblName to tblName to strings.
       // const result = Module.HEAPU8.subarray(address, address + nBytes);
       // can scan till null terminator.
       const heap = HEAP8;
+      const rowid = (BigInt(hi32) << 32n) | (BigInt(lo32) & 0xffffffffn);
       f(updateType, pullCstr(heap, dbName), pullCstr(heap, tblName), rowid);
     }
 
