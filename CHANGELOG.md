@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.15.0
+
+### Minor Changes
+
+- 6316ec315: update to support prebuild binaries, include primary key only table fixes
+
 ## 0.15.0-next.0
 
 ### Minor Changes
