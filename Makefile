@@ -18,7 +18,7 @@ ASYNCIFY_IMPORTS = src/asyncify_imports.json
 # intermediate files
 
 RS_LIB = crsql_bundle
-RS_LIB_DIR = ../../core/rs/bundle
+RS_LIB_DIR = ./crsql/rs/bundle
 RS_WASM_TGT = wasm32-unknown-emscripten
 RS_WASM_TGT_DIR = $(RS_LIB_DIR)/target/$(RS_WASM_TGT)
 RS_RELEASE_BC = $(RS_WASM_TGT_DIR)/release/deps/$(RS_LIB).bc
@@ -36,7 +36,7 @@ BITCODE_FILES_DIST = \
 	tmp/bc/dist/libmodule.bc \
 	tmp/bc/dist/libvfs.bc
 
-dir.crsql := ./crsql
+dir.crsql := ./crsql/src
 
 crsql-files := \
 	$(dir.crsql)/crsqlite.c\
@@ -166,16 +166,18 @@ deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS) $(EXPORTED_FUNCTIO
 deps/$(SQLITE_AMALGAMATION): cache/$(SQLITE_AMALGAMATION).zip
 	mkdir -p deps
 	openssl dgst -sha256 -r cache/$(SQLITE_AMALGAMATION).zip | sed -e 's/ .*//' > deps/sha
-	echo $(SQLITE_AMALGAMATION_ZIP_SHA) | cmp deps/sha
-	rm -rf deps/sha $@
+	echo $(SQLITE_AMALGAMATION_ZIP_SHA) > deps/sha-expected
+	cmp deps/sha deps/sha-expected
+	rm -rf deps/sha deps/sha-expected $@
 	unzip 'cache/$(SQLITE_AMALGAMATION).zip' -d deps/
 	touch $@
 
 deps/$(EXTENSION_FUNCTIONS): cache/$(EXTENSION_FUNCTIONS)
 	mkdir -p deps
 	openssl dgst -sha256 -r cache/$(EXTENSION_FUNCTIONS) | sed -e 's/ .*//' > deps/sha
-	echo $(EXTENSION_FUNCTIONS_SHA) | cmp deps/sha
-	rm -rf deps/sha $@
+	echo $(EXTENSION_FUNCTIONS_SHA) > deps/sha-expected
+	cmp deps/sha deps/sha-expected
+	rm -rf deps/sha deps/sha-expected $@
 	cp 'cache/$(EXTENSION_FUNCTIONS)' $@
 
 ## tmp
