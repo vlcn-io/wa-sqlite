@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.15.1
+
+### Patch Changes
+
+- aad733d: --
+
 ## 0.15.1-next.0
 
 ### Patch Changes
