@@ -1,5 +1,5 @@
-import SQLiteESMFactory from '../dist/wa-sqlite.mjs';
-import SQLiteAsyncESMFactory from '../dist/wa-sqlite-async.mjs';
+import SQLiteESMFactory from '../dist/crsqlite-sync.mjs';
+import SQLiteAsyncESMFactory from '../dist/crsqlite.mjs';
 import * as SQLite from '../src/sqlite-api.js';
 
 export const getSQLite = (function() {

@@ -1,4 +1,4 @@
-import SQLiteModuleFactory from '../dist/wa-sqlite-async.mjs';
+import SQLiteModuleFactory from '../dist/crsqlite.mjs';
 import * as SQLite from '../src/sqlite-api.js';
 import { OriginPrivateFileSystemVFS } from '../src/examples/OriginPrivateFileSystemVFS.js';
 

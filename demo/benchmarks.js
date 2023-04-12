@@ -1,8 +1,8 @@
 // Copyright 2021 Roy T. Hashimoto. All Rights Reserved.
 // @ts-ignore
-import SQLiteESMFactory from '../dist/wa-sqlite.mjs';
+import SQLiteESMFactory from '../dist/crsqlite-sync.mjs';
 // @ts-ignore
-import SQLiteAsyncESMFactory from '../dist/wa-sqlite-async.mjs';
+import SQLiteAsyncESMFactory from '../dist/crsqlite.mjs';
 
 import * as SQLite from '../src/sqlite-api.js';
 

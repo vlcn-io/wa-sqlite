@@ -1213,13 +1213,13 @@ declare module '@vlcn.io/wa-sqlite' {
 }
 
 /** @ignore */
-declare module '@vlcn.io/wa-sqlite/dist/wa-sqlite.mjs' {
+declare module '@vlcn.io/wa-sqlite/dist/crsqlite-sync.mjs' {
   function ModuleFactory(config?: object): Promise<any>;
   export = ModuleFactory;
 }
 
 /** @ignore */
-declare module '@vlcn.io/wa-sqlite/dist/wa-sqlite-async.mjs' {
+declare module '@vlcn.io/wa-sqlite/dist/crsqlite.mjs' {
   function ModuleFactory(config?: object): Promise<any>;
   export = ModuleFactory;
 }

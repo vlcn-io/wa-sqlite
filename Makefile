@@ -239,9 +239,9 @@ clean-debug:
 	rm -rf debug
 
 .PHONY: debug
-debug: debug/wa-sqlite.mjs debug/wa-sqlite-async.mjs
+debug: debug/crsqlite-sync.mjs debug/crsqlite.mjs
 
-debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+debug/crsqlite-sync.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
@@ -249,7 +249,7 @@ debug/wa-sqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIB
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
 	  $(BITCODE_FILES_DEBUG) *.o -o $@
 
-debug/wa-sqlite-async.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+debug/crsqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
@@ -264,9 +264,9 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: dist
-dist: deps dist/wa-sqlite.mjs dist/wa-sqlite-async.mjs
+dist: deps dist/crsqlite-sync.mjs dist/crsqlite.mjs
 
-dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+dist/crsqlite-sync.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
@@ -274,7 +274,7 @@ dist/wa-sqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIB
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
 	  $(BITCODE_FILES_DIST) *.o -o $@
 
-dist/wa-sqlite-async.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+dist/crsqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
