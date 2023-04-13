@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.15.2
+
+### Patch Changes
+
+- 2bbf074: nextjs fix and better reconnect on refocus for mobile
+
 ## 0.15.2-next.0
 
 ### Patch Changes
