@@ -1,6 +1,7 @@
 // Copyright 2022 Roy T. Hashimoto. All Rights Reserved.
 import * as VFS from '../VFS.js';
-import { WebLocksExclusive as WebLocks } from './WebLocks.js';
+// import { WebLocksExclusive as WebLocks } from './WebLocks.js';
+import { WebLocksShared as WebLocks } from './WebLocks.js';
 import { IDBContext } from './IDBContext.js';
 
 const SECTOR_SIZE = 512;
