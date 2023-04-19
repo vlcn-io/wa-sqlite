@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.15.3-next.0
+
+### Patch Changes
+
+- fix xcommit deadlock, bump versions on dependencies
+
 ## 0.15.2
 
 ### Patch Changes
