@@ -1,5 +1,17 @@
 # @vlcn.io/wa-sqlite
 
+## 0.15.4
+
+### Patch Changes
+
+- back to standard locking
+
+## 0.15.3
+
+### Patch Changes
+
+- e5919ae: fix xcommit deadlock, bump versions on dependencies
+
 ## 0.15.3-next.0
 
 ### Patch Changes
