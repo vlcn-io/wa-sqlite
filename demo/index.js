@@ -13,14 +13,16 @@ import { IDBMinimalVFS } from '../src/examples/IDBMinimalVFS.js';
 import { ArrayModule } from '../src/examples/ArrayModule.js';
 import { ArrayAsyncModule } from '../src/examples/ArrayAsyncModule.js';
 
-import { tag } from '../src/examples/tag.js';
+import { createTag } from '../src/examples/tag.js';
 import GOOG from '../test/GOOG.js';
 
 // This is the path to the local monaco-editor installed via devDependencies.
 // This will need to be changed if using a package manager other than Yarn 2.
 // The value can also reference an external CDN, e.g.
 // https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.23.0/min/vs
-const MONACO_VS = '/.yarn/unplugged/monaco-editor-npm-0.34.1-03d887d213/node_modules/monaco-editor/dev/vs';
+const MONACO_VS = location.hostname.endsWith('localhost') ?
+  '/.yarn/unplugged/monaco-editor-npm-0.34.1-03d887d213/node_modules/monaco-editor/dev/vs' :
+  'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs';
 
 const DEFAULT_SQL = `
 -- Optionally select statements to execute.
@@ -71,7 +73,7 @@ SELECT y * y FROM tbl WHERE x = 'bar';
       vfs,
       SQLite.SQLITE_OPEN_CREATE | SQLite.SQLITE_OPEN_READWRITE | SQLite.SQLITE_OPEN_URI,
       vfs);
-    const t = tag(sqlite3, db);
+    const t = createTag(sqlite3, db);
     mapNameToTag.set(key, t);
 
     // Add an example module with an array back-end.

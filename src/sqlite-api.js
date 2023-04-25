@@ -428,6 +428,15 @@ export function Factory(Module) {
     };
   })();
 
+  sqlite3.declare_vtab = (function() {
+    const fname = 'sqlite3_declare_vtab';
+    const f = Module.cwrap(fname, ...decl('ns:n'));
+    return function(pVTab, zSQL) {
+      const result = f(pVTab, zSQL);
+      return check('sqlite3_declare_vtab', result);
+    }
+  })();
+    
   sqlite3.exec = async function(db, sql, callback) {
     for await (const stmt of sqlite3.statements(db, sql)) {
       let columns;
@@ -620,7 +629,7 @@ export function Factory(Module) {
       // Copy blob if aliasing volatile WebAssembly memory. This avoids an
       // unnecessary copy if users monkey patch column_blob to copy.
       // @ts-ignore
-      row.push(value?.buffer === Module.HEAP8.buffer ? value.slice() : value);
+      row.push(value?.buffer === Module.HEAPU8.buffer ? value.slice() : value);
     }
     return row;
   };
@@ -694,8 +703,8 @@ export function Factory(Module) {
     const sBytes = Module.lengthBytesUTF8(s);
     const newBytes = data.bytes + sBytes;
     const newOffset = Module._sqlite3_malloc(newBytes + 1);
-    const newArray = Module.HEAP8.subarray(newOffset, newOffset + newBytes + 1);
-    newArray.set(Module.HEAP8.subarray(data.offset, data.offset + data.bytes));
+    const newArray = Module.HEAPU8.subarray(newOffset, newOffset + newBytes + 1);
+    newArray.set(Module.HEAPU8.subarray(data.offset, data.offset + data.bytes));
     Module.stringToUTF8(s, newOffset + data.bytes, sBytes + 1);
 
     Module._sqlite3_free(data.offset);

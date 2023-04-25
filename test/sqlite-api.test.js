@@ -224,7 +224,7 @@ function shared(sqlite3Ready) {
     // Apply the function to each row.
     const values = [];
     await sqlite3.exec(db, `SELECT MyFunc(0, value) FROM tbl`, row => {
-      // Blob results do not remain valid so copy to retain.
+      // Convert Uint8Array to Array for comparison.
       const value = row[0] instanceof Uint8Array ? Array.from(row[0]) : row[0];
       values.push(value);
     });
@@ -403,7 +403,7 @@ function shared(sqlite3Ready) {
     expect(Array.from(rows[0][0])).toEqual([]);
     expect(Array.from(rows[1][0])).toEqual([42]);
     expect(Array.from(rows[2][0])).toEqual([0, 1, 2]);
-    expect(Array.from(rows[3][0])).toEqual([...new Int8Array([0xde, 0xad, 0xbe, 0xef])]);
+    expect(Array.from(rows[3][0])).toEqual([...new Uint8Array([0xde, 0xad, 0xbe, 0xef])]);
   });
 
   it('should handle 64-bit integer with {bind,column}_int64', async function() {

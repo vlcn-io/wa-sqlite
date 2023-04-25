@@ -11,11 +11,12 @@
 /cache
 /debug
 /deps
-/docs
-/dist
 /tmp
 
 .DS_Store
 
 node_modules/
 .turbo/
+/dist-xl.zip
+/dist-xl
+/dist
