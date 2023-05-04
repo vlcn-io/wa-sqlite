@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.16.1-next.0
+
+### Patch Changes
+
+- include fts5 & bump to sqlite 3.41.2
+
 ## 0.16.0
 
 ### Minor Changes
