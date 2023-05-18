@@ -1,5 +1,12 @@
 # @vlcn.io/wa-sqlite
 
+## 0.16.1
+
+### Patch Changes
+
+- 6dbfdcb: include fts5 & bump to sqlite 3.41.2
+- fts5, sqlite 3.42.1, direct-connect packages
+
 ## 0.16.1-next.0
 
 ### Patch Changes
