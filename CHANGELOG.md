@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.19.0-next.0
+
+### Minor Changes
+
+- split up large transactions, compact out unneeded delete records, coordinate dedicated workers for android, null merge fix
+
 ## 0.18.0
 
 ### Minor Changes
