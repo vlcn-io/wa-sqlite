@@ -657,9 +657,11 @@ declare interface SQLiteAPI {
 
   /**
    * Destroy a prepared statement object compiled with {@link prepare_v2}
+   * 
+   * This function does *not* throw on error.
    * @see https://www.sqlite.org/c3ref/finalize.html
    * @param stmt prepared statement pointer
-   * @returns Promise resolving to `SQLITE_OK` (rejects on error)
+   * @returns Promise resolving to `SQLITE_OK` or error status
    */
   finalize(stmt: number): Promise<number>;
 
@@ -684,6 +686,19 @@ declare interface SQLiteAPI {
    * @returns version number, e.g. 3035005
    */
   libversion_number(): number
+
+  /**
+   * Set a usage limit on a connection.
+   * @see https://www.sqlite.org/c3ref/limit.html
+   * @param db database pointer
+   * @param id limit category
+   * @param newVal 
+   * @returns previous setting
+   */
+  limit(
+    db: number,
+    id: number,
+    newVal: number): number;
 
   /**
    * Opening a new database connection.
@@ -747,6 +762,15 @@ declare interface SQLiteAPI {
    * no statement remains
    */
   prepare_v2(db: number, sql: number): Promise<{ stmt: number, sql: number}|null>;
+
+  /**
+   * Specify callback to be invoked between long-running queries
+   * @param db database pointer
+   * @param nProgressOps target number of database operations between handler invocations
+   * @param handler 
+   * @param userData 
+   */
+  progress_handler(db: number, nProgressOps: number, handler: (userData: any) => number, userData);
 
   /**
    * Reset a prepared statement object
@@ -823,6 +847,18 @@ declare interface SQLiteAPI {
   row(stmt: number): Array<SQLiteCompatibleType|null>;
 
   /**
+   * Register a callback function that is invoked to authorize certain SQL statement actions.
+   * @see https://www.sqlite.org/c3ref/set_authorizer.html
+   * @param db database pointer
+   * @param authFunction 
+   * @param userData 
+   */
+  set_authorizer(
+    db: number,
+    authFunction: (userData: any, iActionCode: number, param3: string|null, param4: string|null, param5: string|null, param6: string|null) => number,
+    userData: any): number;
+  
+  /**
    * Get statement SQL
    * @see https://www.sqlite.org/c3ref/expanded_sql.html
    * @param stmt prepared statement pointer
@@ -863,7 +899,7 @@ declare interface SQLiteAPI {
    * is abandoned before completion (`for await` and other implicit
    * traversals provided by Javascript do this automatically)
    * to ensure that all allocated resources are released.
-   * @param db 
+   * @param db database pointer
    * @param sql 
    */
   statements(db: number, sql: string): AsyncIterable<number>;

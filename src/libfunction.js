@@ -93,7 +93,6 @@ const fn_methods = {
   }
 };
 
-// @ts-ignore
 const FN_METHOD_NAMES = [
   "jsFunc",
   "jsStep",

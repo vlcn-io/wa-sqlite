@@ -10,7 +10,7 @@ EXTENSION_FUNCTIONS_SHA = 991b40fe8b2799edc215f7260b890f14a833512c9d9896aa080891
 
 # source files
 
-LIBRARY_FILES = src/libfunction.js src/libmodule.js src/libvfs.js
+LIBRARY_FILES = src/libauthorizer.js src/libfunction.js src/libmodule.js src/libprogress.js src/libvfs.js
 EXPORTED_FUNCTIONS = src/exported_functions.json
 EXPORTED_RUNTIME_METHODS = src/extra_exported_runtime_methods.json
 ASYNCIFY_IMPORTS = src/asyncify_imports.json
@@ -26,14 +26,18 @@ RS_DEBUG_BC = $(RS_WASM_TGT_DIR)/debug/deps/$(RS_LIB).bc
 
 BITCODE_FILES_DEBUG = \
 	tmp/bc/debug/extension-functions.bc \
+	tmp/bc/debug/libauthorizer.bc \
 	tmp/bc/debug/libfunction.bc \
 	tmp/bc/debug/libmodule.bc \
+	tmp/bc/debug/libprogress.bc \
 	tmp/bc/debug/libvfs.bc
 
 BITCODE_FILES_DIST = \
 	tmp/bc/dist/extension-functions.bc \
+	tmp/bc/dist/libauthorizer.bc \
 	tmp/bc/dist/libfunction.bc \
 	tmp/bc/dist/libmodule.bc \
+	tmp/bc/dist/libprogress.bc \
 	tmp/bc/dist/libvfs.bc
 
 dir.crsql := ./crsql/src
@@ -87,8 +91,10 @@ EMFLAGS_INTERFACES = \
 	-s ENVIRONMENT="web,worker"
 
 EMFLAGS_LIBRARIES = \
+	--js-library src/libauthorizer.js \
 	--js-library src/libfunction.js \
 	--js-library src/libmodule.js \
+	--js-library src/libprogress.js \
 	--js-library src/libvfs.js
 
 EMFLAGS_ASYNCIFY_COMMON = \
@@ -114,7 +120,7 @@ WASQLITE_DEFINES ?= \
 	-DSQLITE_OMIT_AUTOINIT \
 	-DSQLITE_OMIT_DECLTYPE \
 	-DSQLITE_OMIT_DEPRECATED \
-	-DSQLITE_OMIT_PROGRESS_CALLBACK \
+	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_OMIT_SHARED_CACHE \
 	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_ENABLE_BYTECODE_VTAB \
@@ -202,11 +208,19 @@ tmp/bc/debug/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
+tmp/bc/debug/libauthorizer.bc: src/libauthorizer.c
+	mkdir -p tmp/bc/debug
+	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
+
 tmp/bc/debug/libfunction.bc: src/libfunction.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
 tmp/bc/debug/libmodule.bc: src/libmodule.c
+	mkdir -p tmp/bc/debug
+	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
+
+tmp/bc/debug/libprogress.bc: src/libprogress.c
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
@@ -222,11 +236,19 @@ tmp/bc/dist/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
+tmp/bc/dist/libauthorizer.bc: src/libauthorizer.c
+	mkdir -p tmp/bc/dist
+	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
+
 tmp/bc/dist/libfunction.bc: src/libfunction.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
 tmp/bc/dist/libmodule.bc: src/libmodule.c
+	mkdir -p tmp/bc/dist
+	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
+
+tmp/bc/dist/libprogress.bc: src/libprogress.c
 	mkdir -p tmp/bc/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 

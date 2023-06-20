@@ -262,6 +262,52 @@ function shared(sqlite3Ready) {
     expect(result).toBe(10);
   });
 
+  it('authorizer', async function() {
+    const calls = [];
+    function authFunction(userData, iActionCode, param3, param4, param5, param6) {
+      calls.push({ userData, iActionCode, param3, param4, param5, param6 });
+      if (iActionCode === SQLite.SQLITE_PRAGMA) {
+        return SQLite.SQLITE_DENY;
+      }
+      return SQLite.SQLITE_OK;
+    }
+
+    let result;
+    result = sqlite3.set_authorizer(db, authFunction, 42);
+    expect(result).toBe(SQLite.SQLITE_OK);
+
+    await sqlite3.exec(db, 'CREATE TABLE foo(x)');
+    expect(calls.length).toBeGreaterThan(0);
+    const createTable = calls.find(call => call.iActionCode === SQLite.SQLITE_CREATE_TABLE);
+    expect(createTable).toBeDefined();
+    expect(createTable.userData).toBe(42);
+    expect(createTable.param3).toBe('foo');
+    expect(createTable.param4).toBe(null);
+    expect(createTable.param5).toBe('main');
+    expect(createTable.param6).toBe(null);
+    calls.splice(0, Infinity);
+
+    await expectAsync(sqlite3.exec(db, 'PRAGMA page_count'))
+      .toBeRejectedWithError(/not authorized/);
+    calls.splice(0, Infinity);
+
+    result = sqlite3.set_authorizer(db, null, null);
+    expect(result).toBe(SQLite.SQLITE_OK);
+
+    await sqlite3.exec(db, 'CREATE TABLE bar(x)');
+    expect(calls.length).toBe(0);
+  });
+
+  it('limit', async function() {
+    let result;
+    result = sqlite3.limit(db, SQLite.SQLITE_LIMIT_SQL_LENGTH, -1);
+    expect(result).toBeGreaterThan(64);
+
+    sqlite3.limit(db, SQLite.SQLITE_LIMIT_SQL_LENGTH, 8);
+    await expectAsync(sqlite3.exec(db, 'PRAGMA page_count'))
+      .toBeRejectedWithError(/too big/);
+  });
+
   it('statements', async function() {
     sinon.spy(sqlite3, 'finalize');
 
@@ -523,6 +569,33 @@ function shared(sqlite3Ready) {
 
     await sqlite3.exec(db, 'ROLLBACK');
     expect(sqlite3.get_autocommit(db)).toBeTruthy();
+  });
+
+  it('progress_handler', async function() {
+    let handlerArg;
+    let handlerCount = 0;
+    function handler(userData) {
+      handlerArg = userData;
+      return ++handlerCount > 5 ? 1 : 0;
+    }
+    sqlite3.progress_handler(db, 1, handler, 42);
+
+    let result;
+    result = sqlite3.exec(db, `
+      WITH RECURSIVE numbers(n)
+        AS (SELECT 1 UNION ALL SELECT n + 1 FROM numbers LIMIT 10)
+        SELECT * FROM numbers;
+    `);
+    await expectAsync(result).toBeRejectedWithError(/interrupted/);
+    expect(handlerArg).toBe(42);
+
+    sqlite3.progress_handler(db, 0, null, 42);
+    result = sqlite3.exec(db, `
+      WITH RECURSIVE numbers(n)
+        AS (SELECT 1 UNION ALL SELECT n + 1 FROM numbers LIMIT 10)
+        SELECT * FROM numbers;
+    `);
+    await expectAsync(result).toBeResolved();
   });
 }
 
