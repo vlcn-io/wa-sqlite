@@ -82,7 +82,7 @@ EMFLAGS_DEBUG = $(EMFLAGS_COMMON) \
 	-g
 
 EMFLAGS_DIST = $(EMFLAGS_COMMON) \
-	-Oz \
+	-O3 \
 	-flto \
 	--closure 1
 
