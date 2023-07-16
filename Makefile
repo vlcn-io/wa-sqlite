@@ -46,7 +46,6 @@ crsql-files := \
 	$(dir.crsql)/crsqlite.c\
 	$(dir.crsql)/util.c \
 	$(dir.crsql)/tableinfo.c \
-	$(dir.crsql)/triggers.c \
 	$(dir.crsql)/changes-vtab.c \
 	$(dir.crsql)/changes-vtab-read.c \
 	$(dir.crsql)/changes-vtab-common.c \
