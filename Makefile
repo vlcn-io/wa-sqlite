@@ -48,8 +48,7 @@ crsql-files := \
 	$(dir.crsql)/tableinfo.c \
 	$(dir.crsql)/changes-vtab.c \
 	$(dir.crsql)/ext-data.c \
-	$(dir.crsql)/get-table.c \
-	$(dir.crsql)/stmt-cache.c
+	$(dir.crsql)/get-table.c
 
 sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
 sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c
