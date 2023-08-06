@@ -14,70 +14,20 @@ CREATE VIRTUAL TABLE IF NOT EXISTS goog USING array;
 
 -- Copy virtual table into a native table (on the current VFS):
 CREATE TABLE IF NOT EXISTS copied AS SELECT * FROM goog;
-SELECT * FROM copied LIMIT 5;`.trim();
+SELECT * FROM copied LIMIT 5;
+`.trim();
 
-// Define the selectable configurations.
-const DATABASE_CONFIGS = new Map([
-  {
-    label: 'unix / standard',
-    isAsync: false,
-  },
-  {
-    label: 'Memory / standard',
-    isAsync: false,
-    vfsModule: '../src/examples/MemoryVFS.js',
-    vfsClass: 'MemoryVFS',
-    vfsArgs: []
-  },
-  {
-    label: 'MemoryAsync / asyncify',
-    isAsync: true,
-    vfsModule: '../src/examples/MemoryAsyncVFS.js',
-    vfsClass: 'MemoryAsyncVFS',
-    vfsArgs: []
-  },
-  {
-    label: 'IDBMinimal / asyncify',
-    isAsync: true,
-    vfsModule: '../src/examples/IDBMinimalVFS.js',
-    vfsClass: 'IDBMinimalVFS',
-    vfsArgs: ['demo-IDBMinimalVFS']
-  },
-  {
-    label: 'IDBBatchAtomic / asyncify',
-    isAsync: true,
-    vfsModule: '../src/examples/IDBBatchAtomicVFS.js',
-    vfsClass: 'IDBBatchAtomicVFS',
-    vfsArgs: ['demo-IDBBatchAtomicVFS']
-  },
-  {
-    label: 'OriginPrivateFileSystem / asyncify',
-    isAsync: true,
-    vfsModule: '../src/examples/OriginPrivateFileSystemVFS.js',
-    vfsClass: 'OriginPrivateFileSystemVFS',
-    vfsArgs: []
-  },
-  {
-    label: 'AccessHandlePool / standard',
-    isAsync: false,
-    vfsModule: '../src/examples/AccessHandlePoolVFS.js',
-    vfsClass: 'AccessHandlePoolVFS',
-    vfsArgs: ['/demo-AccessHandlePoolVFS']
-  }
-].map(obj => [obj.label, obj]));
-
-const CONFIG_KEY = 'wa-sqlite demo config';
 const SQL_KEY = 'wa-sqlite demo sql';
 
 window.addEventListener('DOMContentLoaded', async function() {
   const Comlink = await import(location.hostname.endsWith('localhost') ?
-    '/.yarn/unplugged/comlink-npm-4.4.1-b05bb2527d/node_modules/comlink/dist/esm/comlink.min.js' :
-    'https://unpkg.com/comlink/dist/esm/comlink.mjs');
+  '/.yarn/unplugged/comlink-npm-4.4.1-b05bb2527d/node_modules/comlink/dist/esm/comlink.min.js' :
+  'https://unpkg.com/comlink/dist/esm/comlink.mjs');
 
   const params = new URLSearchParams(window.location.search);
   if (params.has('clear')) {
     localStorage.clear();
-    const worker = new Worker('./clean-worker.js', { type: 'module' });
+    const worker = new Worker('../clean-worker.js', { type: 'module' });
     await new Promise(resolve => {
       worker.addEventListener('message', resolve);
     });
@@ -107,44 +57,9 @@ window.addEventListener('DOMContentLoaded', async function() {
     return editor;
   });
 
-  // Populate the database configuration selector.
-  const select = /** @type {HTMLSelectElement} */(document.getElementById('vfs'));
-  for (const [key, config] of DATABASE_CONFIGS) {
-    const option = document.createElement('option');
-    option.value = key;
-    option.textContent = config.label;
-    select.appendChild(option);
-
-    // Restore the last used config.
-    const savedConfig = localStorage.getItem(CONFIG_KEY);
-    if (savedConfig === key) {
-      option.selected = true;
-    }
-  }
-
-  // Handle new VFS selection.
-  let worker;
-  select.addEventListener('change', async (event) => {
-    button.disabled = true;
-
-    // Restart the worker.
-    worker?.terminate();
-    worker = new Worker('./demo-worker.js', { type: 'module' });
-    await new Promise(resolve => {
-      worker.addEventListener('message', resolve, { once: true });
-    });
-    
-    // Configure the worker database.
-    const config = DATABASE_CONFIGS.get(select.value);
-    const workerProxy = Comlink.wrap(worker);
-    window['sql'] = await workerProxy(config);
-
-    // Remember the config for next page load.
-    localStorage.setItem(CONFIG_KEY, select.value);
-
-    button.disabled = false;
-  });
-  select.dispatchEvent(new CustomEvent('change'));
+  // Create the Worker.
+  const worker = new Worker('./retry-worker.js', { type: 'module' });
+  const workerProxy = Comlink.wrap(worker);
 
   // Execute SQL on button click.
   button.addEventListener('click', async function() {
@@ -153,7 +68,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     // Get SQL from editor.
     const editor = await editorReady;
     const selection = editor.getSelection();
-    const queries = selection.isEmpty() ?
+    const sql = selection.isEmpty() ?
       editor.getValue() :
       editor.getModel().getValueInRange(selection);
 
@@ -167,8 +82,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     let time = Date.now();
     try {
       // Execute the SQL using the template tag proxy from the Worker.
-      const sql = window['sql'];
-      const results = await sql`${queries}`;
+      const results = await workerProxy.query(sql);
       results.map(formatTable).forEach(table => output.append(table));
     } catch (e) {
       // Adjust for browser differences in Error.stack().

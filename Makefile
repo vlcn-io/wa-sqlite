@@ -1,5 +1,6 @@
 # dependencies
 
+# TODO: pull latest sqlite
 SQLITE_AMALGAMATION = sqlite-amalgamation-3410200
 SQLITE_AMALGAMATION_ZIP_URL = https://www.sqlite.org/2023/${SQLITE_AMALGAMATION}.zip
 SQLITE_AMALGAMATION_ZIP_SHA = 01df06a84803c1ab4d62c64e995b151b2dbcf5dbc93bbc5eee213cb18225d987
@@ -24,21 +25,21 @@ RS_WASM_TGT_DIR = $(RS_LIB_DIR)/target/$(RS_WASM_TGT)
 RS_RELEASE_BC = $(RS_WASM_TGT_DIR)/release/deps/$(RS_LIB).bc
 RS_DEBUG_BC = $(RS_WASM_TGT_DIR)/debug/deps/$(RS_LIB).bc
 
-BITCODE_FILES_DEBUG = \
-	tmp/bc/debug/extension-functions.bc \
-	tmp/bc/debug/libauthorizer.bc \
-	tmp/bc/debug/libfunction.bc \
-	tmp/bc/debug/libmodule.bc \
-	tmp/bc/debug/libprogress.bc \
-	tmp/bc/debug/libvfs.bc
+OBJ_FILES_DEBUG = \
+	tmp/obj/debug/extension-functions.o \
+	tmp/obj/debug/libauthorizer.o \
+	tmp/obj/debug/libfunction.o \
+	tmp/obj/debug/libmodule.o \
+	tmp/obj/debug/libprogress.o \
+	tmp/obj/debug/libvfs.o
 
-BITCODE_FILES_DIST = \
-	tmp/bc/dist/extension-functions.bc \
-	tmp/bc/dist/libauthorizer.bc \
-	tmp/bc/dist/libfunction.bc \
-	tmp/bc/dist/libmodule.bc \
-	tmp/bc/dist/libprogress.bc \
-	tmp/bc/dist/libvfs.bc
+OBJ_FILES_DIST = \
+	tmp/obj/dist/extension-functions.o \
+	tmp/obj/dist/libauthorizer.o \
+	tmp/obj/dist/libfunction.o \
+	tmp/obj/dist/libmodule.o \
+	tmp/obj/dist/libprogress.o \
+	tmp/obj/dist/libvfs.o
 
 dir.crsql := ./crsql/src
 
@@ -70,7 +71,8 @@ EMFLAGS_COMMON = \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s WASM=1 \
 	-s INVOKE_RUN \
-	-s ENVIRONMENT="web,worker"
+	-s ENVIRONMENT="web,worker" \
+	-s STACK_SIZE=512KB
 
 EMFLAGS_DEBUG = $(EMFLAGS_COMMON) \
 	-s ASSERTIONS=1 \
@@ -103,7 +105,7 @@ EMFLAGS_ASYNCIFY_DEBUG = \
 
 EMFLAGS_ASYNCIFY_DIST = \
 	$(EMFLAGS_ASYNCIFY_COMMON) \
-	-s ASYNCIFY_STACK_SIZE=12288
+	-s ASYNCIFY_STACK_SIZE=16384
 
 # https://www.sqlite.org/compile.html
 WASQLITE_DEFINES ?= \
@@ -200,56 +202,60 @@ clean-tmp:
 	rm -rf tmp
 
 # TODO: -emit-llvm ? -flto?
-tmp/bc/debug/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
-	mkdir -p tmp/bc/debug
+# tmp/obj/debug/sqlite3-extra.o: deps/$(SQLITE_AMALGAMATION) $(sqlite3.extra.c) $(crsql-files)
+# 	mkdir -p tmp/obj/debug
+# 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c $(crsql-files) -c
+
+tmp/obj/debug/extension-functions.o: deps/$(EXTENSION_FUNCTIONS)
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libauthorizer.bc: src/libauthorizer.c
-	mkdir -p tmp/bc/debug
+tmp/obj/debug/libfunction.o: src/libfunction.c
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libfunction.bc: src/libfunction.c
-	mkdir -p tmp/bc/debug
+tmp/obj/debug/libauthorizer.o: src/libauthorizer.c
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libmodule.bc: src/libmodule.c
-	mkdir -p tmp/bc/debug
+tmp/obj/debug/libmodule.o: src/libmodule.c
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libprogress.bc: src/libprogress.c
-	mkdir -p tmp/bc/debug
+tmp/obj/debug/libprogress.o: src/libprogress.c
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/debug/libvfs.bc: src/libvfs.c
-	mkdir -p tmp/bc/debug
+tmp/obj/debug/libvfs.o: src/libvfs.c
+	mkdir -p tmp/obj/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
 
 sqlite3-extra.o: deps/$(SQLITE_AMALGAMATION) $(sqlite3.extra.c) $(crsql-files)
-	mkdir -p tmp/bc/dist
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c $(crsql-files) -c
 
-tmp/bc/dist/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/extension-functions.o: deps/$(EXTENSION_FUNCTIONS)
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libauthorizer.bc: src/libauthorizer.c
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/libfunction.o: src/libfunction.c
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libfunction.bc: src/libfunction.c
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/libauthorizer.o: src/libauthorizer.c
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libmodule.bc: src/libmodule.c
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/libmodule.o: src/libmodule.c
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libprogress.bc: src/libprogress.c
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/libprogress.o: src/libprogress.c
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-tmp/bc/dist/libvfs.bc: src/libvfs.c
-	mkdir -p tmp/bc/dist
+tmp/obj/dist/libvfs.o: src/libvfs.c
+	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
 $(RS_DEBUG_BC): FORCE
@@ -271,22 +277,22 @@ clean-debug:
 .PHONY: debug
 debug: debug/crsqlite-sync.mjs debug/crsqlite.mjs
 
-debug/crsqlite-sync.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+debug/crsqlite-sync.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(BITCODE_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) *.o -o $@
 
-debug/crsqlite.mjs: $(BITCODE_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+debug/crsqlite.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DEBUG) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(BITCODE_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) *.o -o $@
 
 ## dist
 .PHONY: clean-dist
@@ -296,15 +302,15 @@ clean-dist:
 .PHONY: dist
 dist: deps dist/crsqlite-sync.mjs dist/crsqlite.mjs
 
-dist/crsqlite-sync.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+dist/crsqlite-sync.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(BITCODE_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) *.o -o $@
 
-dist/crsqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+dist/crsqlite.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBRARY_FILES) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
@@ -312,7 +318,7 @@ dist/crsqlite.mjs: $(BITCODE_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(LIBR
 	  $(EMFLAGS_ASYNCIFY_DIST) \
 		$(CFLAGS_DIST) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(BITCODE_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) *.o -o $@
 
 FORCE: ;
 
