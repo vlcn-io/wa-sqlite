@@ -199,6 +199,7 @@ deps/$(EXTENSION_FUNCTIONS): cache/$(EXTENSION_FUNCTIONS)
 clean-tmp:
 	rm -rf tmp
 
+# TODO: -emit-llvm ? -flto?
 tmp/bc/debug/extension-functions.bc: deps/$(EXTENSION_FUNCTIONS)
 	mkdir -p tmp/bc/debug
 	$(EMCC) $(CFLAGS_DEBUG) $(WASQLITE_DEFINES) $^ -c -o $@
