@@ -1,5 +1,6 @@
 [
   "_RegisterExtensionFunctions",
+  "_core_init",
   "_main",
   "_malloc",
   "_free",
@@ -53,5 +54,6 @@
   "_sqlite3_value_int64",
   "_sqlite3_value_text",
   "_sqlite3_value_type",
-  "_sqlite3_vfs_find"
+  "_sqlite3_vfs_find",
+  "_sqlite3_reset_auto_extension"
 ]

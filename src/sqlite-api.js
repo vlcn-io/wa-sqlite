@@ -506,6 +506,8 @@ export function Factory(Module) {
   })();
 
   sqlite3.open_v2 = (function() {
+    // setup auto-extension loading
+    Module.ccall('core_init', 'void', ['number'], [0]);
     const fname = 'sqlite3_open_v2';
     const f = Module.cwrap(fname, ...decl('snnn:n'), { async });
     return async function(zFilename, flags, zVfs) {
@@ -518,6 +520,8 @@ export function Factory(Module) {
       Module._sqlite3_free(zVfs);
 
       Module.ccall('RegisterExtensionFunctions', 'void', ['number'], [db]);
+      // tear it back down so temp dbs created by the extension (e.g., for automigrate) don't get the extension
+      Module.ccall('sqlite3_reset_auto_extension', 'void');
       check(fname, result);
       return db;
     };
