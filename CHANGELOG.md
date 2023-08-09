@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.21.0-next.0
+
+### Minor Changes
+
+- re-insertion, api naming consistencies, metadata size reduction, websocket server, websocket client, websocket demo
+
 ## 0.20.0
 
 ### Minor Changes
