@@ -1,5 +1,16 @@
 # @vlcn.io/wa-sqlite
 
+## 0.21.0
+
+### Minor Changes
+
+- 56df096: re-insertion, api naming consistencies, metadata size reduction, websocket server, websocket client, websocket demo
+
+### Patch Changes
+
+- 08f13fb: react strict mode fiex, migrator fixes, typed-sql basic support, ws replication, db provider hooks
+- f327068: rebuild
+
 ## 0.21.0-next.1
 
 ### Patch Changes
