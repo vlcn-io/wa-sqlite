@@ -46,7 +46,6 @@ dir.crsql := ./crsql/src
 crsql-files := \
 	$(dir.crsql)/crsqlite.c\
 	$(dir.crsql)/util.c \
-	$(dir.crsql)/tableinfo.c \
 	$(dir.crsql)/changes-vtab.c \
 	$(dir.crsql)/ext-data.c \
 	$(dir.crsql)/get-table.c
@@ -120,6 +119,7 @@ WASQLITE_DEFINES ?= \
 	-DSQLITE_OMIT_DEPRECATED \
 	-DSQLITE_OMIT_LOAD_EXTENSION \
 	-DSQLITE_OMIT_SHARED_CACHE \
+	-DSQLITE_OMIT_UTF16 \
 	-DSQLITE_ENABLE_BYTECODE_VTAB \
 	-DSQLITE_THREADSAFE=0 \
 	-DSQLITE_USE_ALLOCA \
