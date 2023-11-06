@@ -2,7 +2,7 @@ import { getSQLite, getSQLiteAsync } from './api-instances.js';
 import * as SQLite from '../src/sqlite-api.js';
 import * as sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 
-const LIBVERSION = '3.41.2';
+const LIBVERSION = '3.44.0';
 const LIBVERSION_NUMBER = (function() {
   const version = LIBVERSION.split('.');
   return parseInt(version[0] + version[1].padStart(3, '0') + version[2].padStart(3, '0'));

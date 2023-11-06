@@ -1,9 +1,8 @@
 # dependencies
 
-# TODO: pull latest sqlite
-SQLITE_AMALGAMATION = sqlite-amalgamation-3410200
+SQLITE_AMALGAMATION = sqlite-amalgamation-3440000
 SQLITE_AMALGAMATION_ZIP_URL = https://www.sqlite.org/2023/${SQLITE_AMALGAMATION}.zip
-SQLITE_AMALGAMATION_ZIP_SHA = 01df06a84803c1ab4d62c64e995b151b2dbcf5dbc93bbc5eee213cb18225d987
+SQLITE_AMALGAMATION_ZIP_SHA = 93299c8d2c8397622fe00bd807204b1f58815f45bda8097bf93b3bf759a3ebad
 
 EXTENSION_FUNCTIONS = extension-functions.c
 EXTENSION_FUNCTIONS_URL = https://www.sqlite.org/contrib/download/extension-functions.c?get=25
