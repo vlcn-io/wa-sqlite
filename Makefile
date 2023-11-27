@@ -214,7 +214,7 @@ debug/crsqlite-sync.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) $(EXPORTED_FUNCTIONS)
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(OBJ_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) -o $@
 
 debug/crsqlite.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
@@ -223,7 +223,7 @@ debug/crsqlite.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) $(EXPORTED_FUNCTIONS) $(EX
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DEBUG) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(OBJ_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) -o $@
 
 ## dist
 .PHONY: clean-dist
@@ -233,13 +233,15 @@ clean-dist:
 .PHONY: dist
 dist: deps dist/crsqlite-sync.mjs dist/crsqlite.mjs
 
+FORCE: ;
+
 dist/crsqlite-sync.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(OBJ_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) -o $@
 
 dist/crsqlite.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
@@ -248,5 +250,5 @@ dist/crsqlite.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) $(EXPORTED_FUNCTIONS) $(EX
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DIST) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(OBJ_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) -o $@
 
