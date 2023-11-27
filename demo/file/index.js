@@ -39,6 +39,32 @@ document.getElementById('file-export').addEventListener('click', async () => {
   a.click();
 });
 
+document.getElementById('file-fetch').addEventListener('click', async () => {
+  let vfs;
+  try {
+    log(`Importing to IndexedDB ${IDB_NAME}, path ${DB_NAME}`);
+    vfs = new IDBBatchAtomicVFS(IDB_NAME);
+
+    // @ts-ignore
+    const importURL = document.getElementById('file-url').value;
+    const response = await fetch(importURL);
+    await importDatabase(vfs, DB_NAME, response.body);
+
+    log('Import complete');
+
+    // Use a Worker to verify the database with SQLite.
+    log('Verifying database integrity');
+    await verify();
+    log('Verification complete');
+  } catch (e) {
+    log(e.toString());
+    throw e;
+  } finally {
+    vfs?.close();
+  }
+
+});
+
 document.getElementById('file-import').addEventListener('change', async event => {
   let vfs;
   try {
@@ -50,19 +76,7 @@ document.getElementById('file-import').addEventListener('change', async event =>
 
     // Use a Worker to verify the database with SQLite.
     log('Verifying database integrity');
-    const url = new URL('./verifier.js', location.href);
-    url.searchParams.set('idb', IDB_NAME);
-    url.searchParams.set('db', DB_NAME);
-    const worker = new Worker(url, { type: 'module' });
-    await new Promise(resolve => {
-      worker.addEventListener('message', ({data}) => {
-        resolve();
-        for (const row of data) {
-          log(`integrity result: ${row}`);
-        }
-        worker.terminate();
-      });
-    });
+    await verify();
     log('Verification complete');
   } catch (e) {
     log(e.toString());
@@ -122,21 +136,29 @@ async function importDatabase(vfs, path, stream) {
       }
 
       // Assemble the page into a single Uint8Array.
-      // TODO: Optimize case where first chunk has >= pageSize bytes.
-      let copyOffset = 0;
-      const page = new Uint8Array(pageSize);
-      while (copyOffset < pageSize) {
-        // Copy bytes into the page.
-        const src = chunks[0].subarray(0, pageSize - copyOffset);
-        const dst = new Uint8Array(page.buffer, copyOffset);
-        dst.set(src);
-        copyOffset += src.byteLength;
-
-        if (src.byteLength === chunks[0].byteLength) {
-          // All the bytes in the chunk were consumed.
+      let page;
+      if (chunks[0]?.byteLength >= pageSize) {
+        // The first chunk contains the entire page.
+        page = chunks[0].subarray(0, pageSize);
+        chunks[0] = chunks[0].subarray(pageSize);
+        if (!chunks[0].byteLength) {
           chunks.shift();
-        } else {
+        }
+      } else {
+        // Multiple chunks are needed for the page.
+        let copyOffset = 0;
+        page = new Uint8Array(pageSize);
+        while (copyOffset < pageSize) {
+          // Copy bytes into the page.
+          const src = chunks[0].subarray(0, pageSize - copyOffset);
+          const dst = new Uint8Array(page.buffer, copyOffset);
+          dst.set(src);
+          copyOffset += src.byteLength;
+
           chunks[0] = chunks[0].subarray(src.byteLength);
+          if (!chunks[0].byteLength) {
+            chunks.shift();
+          }
         }
       }
 
@@ -184,6 +206,22 @@ async function importDatabase(vfs, path, stream) {
       await onFinally.pop()();
     }
   }
+}
+
+async function verify() {
+  const verifierURL = new URL('./verifier.js', location.href);
+  verifierURL.searchParams.set('idb', IDB_NAME);
+  verifierURL.searchParams.set('db', DB_NAME);
+  const worker = new Worker(verifierURL, { type: 'module' });
+  await new Promise(resolve => {
+    worker.addEventListener('message', ({data}) => {
+      resolve();
+      for (const row of data) {
+        log(`integrity result: ${row}`);
+      }
+      worker.terminate();
+    });
+  });
 }
 
 function log(...args) {
