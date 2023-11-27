@@ -50,6 +50,8 @@ sqlite3.extra.c := deps/$(SQLITE_VERSION)/sqlite3-extra.c
 # build options
 EMCC ?= emcc
 
+CFLAGS_EXTRA = -I'$(dir.crsql)'
+
 CFLAGS_COMMON = \
 	-I'deps/$(SQLITE_VERSION)' \
 	-Wno-non-literal-null-conversion \
