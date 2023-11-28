@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.22.0-next.0
+
+### Minor Changes
+
+- v0.16.0-next
+
 ## 0.21.0
 
 ### Minor Changes
