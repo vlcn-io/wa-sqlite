@@ -65,7 +65,7 @@ const fn_methods = {
 
     _jsUpdateHook = function(pApp, updateType, dbName, tblName, lo32, hi32) {
       const f = mapIdToFunction.get(pApp);
-      const heap = HEAP8;
+      const heap = HEAPU8;
       const rowid = (BigInt(hi32) << 32n) | (BigInt(lo32) & 0xffffffffn);
       f(updateType, pullCstr(heap, dbName), pullCstr(heap, tblName), rowid);
     }

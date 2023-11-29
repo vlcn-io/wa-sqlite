@@ -139,7 +139,7 @@ crsqlite-extra: $(sqlite3.extra.c)
 .PHONY: clean
 clean:
 	rm -rf dist dist-xl debug tmp
-	rm *.o
+	rm -f *.o
 
 .PHONY: spotless
 spotless:
