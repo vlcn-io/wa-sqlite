@@ -6,9 +6,14 @@ EXTENSION_FUNCTIONS = extension-functions.c
 EXTENSION_FUNCTIONS_URL = https://www.sqlite.org/contrib/download/extension-functions.c?get=25
 EXTENSION_FUNCTIONS_SHA = 991b40fe8b2799edc215f7260b890f14a833512c9d9896aa080891330ffe4052
 
+CFILES_EXTRA = \
+	crsqlite.c \
+	changes-vtab.c \
+	ext-data.c
+
 # source files
 CFILES = \
-	sqlite3.c \
+	sqlite3-extra.c \
 	extension-functions.c \
 	libauthorizer.c \
 	libfunction.c \
@@ -17,9 +22,12 @@ CFILES = \
 	libvfs.c \
 	$(CFILES_EXTRA)
 
+dir.crsql := ./crsql/src
+
 vpath %.c src
 vpath %.c deps
 vpath %.c deps/$(SQLITE_VERSION)
+vpath %.c $(dir.crsql)
 
 EXPORTED_FUNCTIONS = src/exported_functions.json
 EXPORTED_RUNTIME_METHODS = src/extra_exported_runtime_methods.json
@@ -36,18 +44,13 @@ RS_DEBUG_BC = $(RS_WASM_TGT_DIR)/debug/deps/$(RS_LIB).bc
 OBJ_FILES_DEBUG = $(patsubst %.c,tmp/obj/debug/%.o,$(CFILES))
 OBJ_FILES_DIST = $(patsubst %.c,tmp/obj/dist/%.o,$(CFILES))
 
-dir.crsql := ./crsql/src
-
-crsql-files := \
-	$(dir.crsql)/crsqlite.c\
-	$(dir.crsql)/changes-vtab.c \
-	$(dir.crsql)/ext-data.c
-
-sqlite3.c := deps/$(SQLITE_AMALGAMATION)/sqlite3.c
-sqlite3.extra.c := deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c
+sqlite3.c := deps/$(SQLITE_VERSION)/sqlite3.c
+sqlite3.extra.c := deps/$(SQLITE_VERSION)/sqlite3-extra.c
 
 # build options
 EMCC ?= emcc
+
+CFLAGS_EXTRA = -I'$(dir.crsql)'
 
 CFLAGS_COMMON = \
 	-I'deps/$(SQLITE_VERSION)' \
@@ -159,8 +162,6 @@ clean-deps:
 
 .PHONY: deps
 
-deps: deps/$(SQLITE_AMALGAMATION) deps/$(EXTENSION_FUNCTIONS)
-
 deps/$(SQLITE_VERSION)/sqlite3.h deps/$(SQLITE_VERSION)/sqlite3.c:
 	mkdir -p cache/$(SQLITE_VERSION)
 	curl -LsS $(SQLITE_TARBALL_URL) | tar -xzf - -C cache/$(SQLITE_VERSION)/ --strip-components=1
@@ -188,10 +189,6 @@ tmp/obj/dist/%.o: %.c
 	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
-sqlite3-extra.o: deps/$(SQLITE_AMALGAMATION) $(sqlite3.extra.c) $(crsql-files)
-	mkdir -p tmp/obj/dist
-	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) deps/$(SQLITE_AMALGAMATION)/sqlite3-extra.c $(crsql-files) -c
-
 $(RS_DEBUG_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
@@ -211,22 +208,22 @@ clean-debug:
 .PHONY: debug
 debug: debug/crsqlite-sync.mjs debug/crsqlite.mjs
 
-debug/crsqlite-sync.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+debug/crsqlite-sync.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(OBJ_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) -o $@
 
-debug/crsqlite.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) sqlite3-extra.o$(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+debug/crsqlite.mjs: $(OBJ_FILES_DEBUG) $(RS_DEBUG_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p debug
 	$(EMCC) $(EMFLAGS_DEBUG) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DEBUG) \
 		$(RS_WASM_TGT_DIR)/debug/deps/*.bc \
-	  $(OBJ_FILES_DEBUG) *.o -o $@
+	  $(OBJ_FILES_DEBUG) -o $@
 
 ## dist
 .PHONY: clean-dist
@@ -236,20 +233,22 @@ clean-dist:
 .PHONY: dist
 dist: deps dist/crsqlite-sync.mjs dist/crsqlite.mjs
 
-dist/crsqlite-sync.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
+FORCE: ;
+
+dist/crsqlite-sync.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(OBJ_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) -o $@
 
-dist/crsqlite.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) sqlite3-extra.o $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
+dist/crsqlite.mjs: $(OBJ_FILES_DIST) $(RS_RELEASE_BC) $(EXPORTED_FUNCTIONS) $(EXPORTED_RUNTIME_METHODS) $(ASYNCIFY_IMPORTS)
 	mkdir -p dist
 	$(EMCC) $(EMFLAGS_DIST) \
 	  $(EMFLAGS_INTERFACES) \
 	  $(EMFLAGS_LIBRARIES) \
 	  $(EMFLAGS_ASYNCIFY_DIST) \
 		$(RS_WASM_TGT_DIR)/release/deps/*.bc \
-	  $(OBJ_FILES_DIST) *.o -o $@
+	  $(OBJ_FILES_DIST) -o $@
 
