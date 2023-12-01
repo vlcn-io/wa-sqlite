@@ -1,5 +1,11 @@
 # @vlcn.io/wa-sqlite
 
+## 0.22.0-next.2
+
+### Patch Changes
+
+- fix error where separate connections would not report the correct db version
+
 ## 0.22.0-next.1
 
 ### Patch Changes
