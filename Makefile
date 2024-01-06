@@ -188,12 +188,15 @@ tmp/obj/dist/%.o: %.c
 	mkdir -p tmp/obj/dist
 	$(EMCC) $(CFLAGS_DIST) $(WASQLITE_DEFINES) $^ -c -o $@
 
+# This repo is only ever intended to be built when it is a submodule of the cr-sqlite/js repo.
+$(RS_DEBUG_BC): export CRSQLITE_COMMIT_SHA = $(shell cd ..; git rev-parse HEAD)
 $(RS_DEBUG_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
 	RUSTFLAGS="--emit=llvm-bc -C linker=/usr/bin/true" cargo build --features static,omit_load_extension -Z build-std=panic_abort,core,alloc --target $(RS_WASM_TGT)
 
 # See comments on debug
+$(RS_RELEASE_BC): export CRSQLITE_COMMIT_SHA = $(shell cd ..; git rev-parse HEAD)
 $(RS_RELEASE_BC): FORCE
 	mkdir -p tmp/bc/dist
 	cd $(RS_LIB_DIR); \
